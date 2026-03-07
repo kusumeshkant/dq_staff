@@ -29,8 +29,8 @@ class StaffActionModel extends StaffActionEntity {
       StaffActionModel(
         staffId: json['staffId'] as String?,
         staffName: json['staffName'] as String?,
-        action: json['action'] as String,
-        timestamp: json['timestamp'] as String,
+        action: json['action'] as String? ?? '',
+        timestamp: json['timestamp'] as String? ?? '',
         note: json['note'] as String?,
       );
 }
@@ -57,6 +57,7 @@ class OrderModel extends OrderEntity {
     required super.id,
     super.storeName,
     super.storeId,
+    super.storeCode,
     required super.total,
     required super.tax,
     required super.grandTotal,
@@ -71,6 +72,7 @@ class OrderModel extends OrderEntity {
         id: json['id'] as String,
         storeName: json['storeName'] as String?,
         storeId: json['storeId'] as String?,
+        storeCode: json['storeCode'] as String?,
         total: (json['total'] as num).toDouble(),
         tax: (json['tax'] as num).toDouble(),
         grandTotal: (json['grandTotal'] as num).toDouble(),
@@ -94,6 +96,7 @@ class OrderModel extends OrderEntity {
         id: id,
         storeName: storeName,
         storeId: storeId,
+        storeCode: storeCode,
         total: total,
         tax: tax,
         grandTotal: grandTotal,

@@ -211,6 +211,35 @@ class _OrderCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
+                  if (order.storeName != null || order.storeCode != null)
+                    Row(
+                      children: [
+                        if (order.storeCode != null)
+                          Container(
+                            margin: const EdgeInsets.only(right: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppTheme.primary.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4)),
+                            ),
+                            child: Text(
+                              order.storeCode!,
+                              style: const TextStyle(
+                                  color: AppTheme.primary,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        if (order.storeName != null)
+                          Text(
+                            order.storeName!,
+                            style: const TextStyle(
+                                color: AppTheme.textSecondary, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                  const SizedBox(height: 4),
                   Text(
                     '${order.items.length} item${order.items.length != 1 ? 's' : ''}  ·  ₹${order.grandTotal.toStringAsFixed(0)}',
                     style: const TextStyle(

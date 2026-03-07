@@ -71,6 +71,7 @@ class OrderEntity {
   final String id;
   final String? storeName;
   final String? storeId;
+  final String? storeCode;
   final double total;
   final double tax;
   final double grandTotal;
@@ -84,6 +85,7 @@ class OrderEntity {
     required this.id,
     this.storeName,
     this.storeId,
+    this.storeCode,
     required this.total,
     required this.tax,
     required this.grandTotal,

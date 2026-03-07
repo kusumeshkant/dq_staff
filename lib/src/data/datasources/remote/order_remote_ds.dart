@@ -52,6 +52,7 @@ class OrderRemoteDs {
         id
         storeName
         storeId
+        storeCode
         total
         tax
         grandTotal
@@ -70,6 +71,7 @@ class OrderRemoteDs {
         id
         storeName
         storeId
+        storeCode
         total
         tax
         grandTotal
