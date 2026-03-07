@@ -66,7 +66,7 @@ class OrderRemoteDs {
   ''';
 
   Future<List<Map<String, dynamic>>> getStoreOrders(String storeId) async {
-    final result = await client.query(
+    final result = await _client.query(
       QueryOptions(
         document: gql(_storeOrdersQuery),
         variables: {'storeId': storeId},
@@ -79,7 +79,7 @@ class OrderRemoteDs {
   }
 
   Future<Map<String, dynamic>?> getOrderById(String orderId) async {
-    final result = await client.query(
+    final result = await _client.query(
       QueryOptions(
         document: gql(_orderByIdQuery),
         variables: {'orderId': orderId},
@@ -92,7 +92,7 @@ class OrderRemoteDs {
 
   Future<Map<String, dynamic>> updateOrderStatus(
       String orderId, String status) async {
-    final result = await client.mutate(
+    final result = await _client.mutate(
       MutationOptions(
         document: gql(_updateStatusMutation),
         variables: {'orderId': orderId, 'status': status},
@@ -104,7 +104,7 @@ class OrderRemoteDs {
 
   Future<Map<String, dynamic>> flagOrderIssue(
       String orderId, String reason, String note) async {
-    final result = await client.mutate(
+    final result = await _client.mutate(
       MutationOptions(
         document: gql(_flagIssueMutation),
         variables: {'orderId': orderId, 'reason': reason, 'note': note},

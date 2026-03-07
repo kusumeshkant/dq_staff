@@ -58,7 +58,7 @@ class AuthRemoteDs {
   }
 
   Future<Map<String, dynamic>> getProfile() async {
-    final result = await client.query(
+    final result = await _client.query(
       QueryOptions(document: gql(_meQuery)),
     );
     if (result.hasException) throw Exception(result.exception.toString());
@@ -66,7 +66,7 @@ class AuthRemoteDs {
   }
 
   Future<void> updateFcmToken(String token) async {
-    await client.mutate(
+    await _client.mutate(
       MutationOptions(
         document: gql(_updateFcmMutation),
         variables: {'token': token},
