@@ -3,8 +3,8 @@ import 'package:dq_staff/src/data/repo_impl/auth_repository_impl.dart';
 import 'package:dq_staff/src/domain/usecase/get_profile_usecase.dart';
 import 'package:dq_staff/src/presentation/auth/login/login_binding.dart';
 import 'package:dq_staff/src/presentation/auth/login/login_page.dart';
-import 'package:dq_staff/src/presentation/orders/orders_binding.dart';
-import 'package:dq_staff/src/presentation/orders/orders_page.dart';
+import 'package:dq_staff/src/presentation/home/home_binding.dart';
+import 'package:dq_staff/src/presentation/home/home_page.dart';
 import 'package:dq_staff/src/service_core/auth/session_manager.dart';
 import 'package:dq_staff/src/service_core/networks/graphql_client_provider.dart';
 import 'package:dq_staff/src/service_core/notifications/notification_service.dart';
@@ -64,9 +64,18 @@ Future<_StartConfig> _resolveStartPage(SessionManager session) async {
 
     session.setUser(user);
 
+    // Fetch and cache store details for the staff detail card
+    if (user.storeId != null) {
+      try {
+        final store = await AuthRepositoryImpl(AuthRemoteDs())
+            .getStoreById(user.storeId!);
+        if (store != null) session.setStore(store);
+      } catch (_) {}
+    }
+
     return _StartConfig(
-      page: const OrdersPage(),
-      binding: OrdersBinding(),
+      page: const HomePage(),
+      binding: HomeBinding(),
     );
   } catch (_) {
     return _StartConfig(page: const LoginPage(), binding: LoginBinding());

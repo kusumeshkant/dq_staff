@@ -5,8 +5,8 @@ import '../../../domain/repo/auth_repository.dart';
 import '../../../service_core/auth/session_manager.dart';
 import '../../../service_core/networks/graphql_client_provider.dart';
 import '../../../service_core/notifications/notification_service.dart';
-import '../../orders/orders_binding.dart';
-import '../../orders/orders_page.dart';
+import '../../home/home_binding.dart';
+import '../../home/home_page.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepo;
@@ -62,13 +62,20 @@ class LoginController extends GetxController {
         return;
       }
 
-      Get.find<SessionManager>().setUser(user);
+      final session = Get.find<SessionManager>();
+      session.setUser(user);
+
+      // Fetch store details for the staff card
+      try {
+        final store = await authRepo.getStoreById(user.storeId!);
+        if (store != null) session.setStore(store);
+      } catch (_) {}
 
       // Register FCM token
       final token = await Get.find<NotificationService>().getToken();
       if (token != null) await authRepo.updateFcmToken(token);
 
-      Get.offAll(() => const OrdersPage(), binding: OrdersBinding());
+      Get.offAll(() => const HomePage(), binding: HomeBinding());
     } catch (e) {
       errorMessage.value = _friendlyError(e.toString());
     } finally {

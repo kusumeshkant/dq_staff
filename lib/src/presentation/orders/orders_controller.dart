@@ -4,8 +4,8 @@ import '../../domain/entity/order_entity.dart';
 import '../../domain/usecase/get_order_by_id_usecase.dart';
 import '../../domain/usecase/get_store_orders_usecase.dart';
 import '../../service_core/auth/session_manager.dart';
-import '../order_detail/order_detail_page.dart';
 import '../order_detail/order_detail_binding.dart';
+import '../order_detail/order_detail_page.dart';
 
 class OrdersController extends GetxController {
   final GetStoreOrdersUseCase getStoreOrdersUseCase;
@@ -16,10 +16,27 @@ class OrdersController extends GetxController {
     required this.getOrderByIdUseCase,
   });
 
+  // ── Source list (all orders for this store) ───────────────────────────────
   final RxList<OrderEntity> orders = <OrderEntity>[].obs;
+
+  // ── Derived explicit RxLists (updated after every load) ──────────────────
+  // Dashboard: pending + preparing + ready only
+  final RxList<OrderEntity> activeOrders = <OrderEntity>[].obs;
+
+  // Failed: cancelled or flagged
+  final RxList<OrderEntity> failedOrders = <OrderEntity>[].obs;
+
+  // My completed: orders this staff personally completed
+  final RxList<OrderEntity> myCompletedOrders = <OrderEntity>[].obs;
+
   final isLoading = false.obs;
   final searchController = TextEditingController();
   final isSearching = false.obs;
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  int get activeCount => activeOrders.length;
+  int get failedCount => failedOrders.length;
+  int get myCompletedCount => myCompletedOrders.length;
 
   @override
   void onInit() {
@@ -41,6 +58,7 @@ class OrdersController extends GetxController {
     try {
       final result = await getStoreOrdersUseCase.execute(storeId);
       orders.assignAll(result);
+      _updateDerivedLists();
     } catch (e) {
       Get.snackbar('Error', 'Failed to load orders: ${e.toString()}',
           backgroundColor: Colors.red,
@@ -48,6 +66,31 @@ class OrdersController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void _updateDerivedLists() {
+    final staffId = Get.find<SessionManager>().staffId;
+    final all = orders.toList();
+
+    activeOrders.assignAll(
+      all.where((o) =>
+          o.status == 'pending' ||
+          o.status == 'preparing' ||
+          o.status == 'ready'),
+    );
+
+    failedOrders.assignAll(
+      all.where((o) => o.status == 'cancelled' || o.isFlagged),
+    );
+
+    if (staffId != null) {
+      myCompletedOrders.assignAll(
+        all.where((o) => o.staffActions.any(
+            (a) => a.staffId == staffId && a.action == 'completed')),
+      );
+    } else {
+      myCompletedOrders.clear();
     }
   }
 
@@ -86,12 +129,11 @@ class OrdersController extends GetxController {
     )?.then((_) => loadOrders());
   }
 
-  // Update a single order in the list (called after status change)
   void updateOrderInList(OrderEntity updated) {
     final idx = orders.indexWhere((o) => o.id == updated.id);
     if (idx != -1) {
       orders[idx] = updated;
-      orders.refresh();
+      _updateDerivedLists();
     }
   }
 }

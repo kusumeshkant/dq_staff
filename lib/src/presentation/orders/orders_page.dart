@@ -1,5 +1,4 @@
 import 'package:dq_staff/widgets/app_glass_card.dart';
-import 'package:dq_staff/widgets/themed_background.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +8,8 @@ import '../../service_core/networks/graphql_client_provider.dart';
 import '../../theme/app_theme.dart';
 import '../auth/login/login_binding.dart';
 import '../auth/login/login_page.dart';
+import '../failed_orders/failed_orders_page.dart';
+import '../home/home_controller.dart';
 import '../scanner/scanner_page.dart';
 import '../scanner/scanner_binding.dart';
 import 'orders_controller.dart';
@@ -21,8 +22,7 @@ class OrdersPage extends StatelessWidget {
     final c = Get.find<OrdersController>();
     final session = Get.find<SessionManager>();
 
-    return ThemedBackground(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Obx(() => Text(
@@ -53,6 +53,42 @@ class OrdersPage extends StatelessWidget {
         ),
         body: Column(
           children: [
+            // Staff detail card
+            _StaffDetailCard(session: session),
+
+            // Stats row
+            Obx(() => Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Row(
+                    children: [
+                      _StatChip(
+                        label: 'Active',
+                        value: c.activeCount,
+                        color: AppTheme.primary,
+                        icon: Icons.receipt_long_rounded,
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        label: 'Failed',
+                        value: c.failedCount,
+                        color: Colors.red,
+                        icon: Icons.cancel_rounded,
+                        onTap: () => Get.to(() => const FailedOrdersPage()),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        label: 'My Done',
+                        value: c.myCompletedCount,
+                        color: Colors.green,
+                        icon: Icons.check_circle_rounded,
+                        onTap: () =>
+                            Get.find<HomeController>().goToTab(2),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 8),
+
             // Search bar
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -107,7 +143,7 @@ class OrdersPage extends StatelessWidget {
                       child: CircularProgressIndicator(
                           color: AppTheme.primary));
                 }
-                if (c.orders.isEmpty) {
+                if (c.activeOrders.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -117,9 +153,13 @@ class OrdersPage extends StatelessWidget {
                             color: AppTheme.textSecondary
                                 .withValues(alpha: 0.5)),
                         const SizedBox(height: 12),
-                        const Text('No orders yet',
+                        const Text('No active orders',
                             style: TextStyle(
                                 color: AppTheme.textSecondary, fontSize: 15)),
+                        const SizedBox(height: 6),
+                        const Text('Completed & cancelled orders are filtered out',
+                            style: TextStyle(
+                                color: AppTheme.textSecondary, fontSize: 12)),
                       ],
                     ),
                   );
@@ -129,10 +169,10 @@ class OrdersPage extends StatelessWidget {
                   color: AppTheme.primary,
                   child: ListView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                    itemCount: c.orders.length,
+                    itemCount: c.activeOrders.length,
                     itemBuilder: (_, i) => _OrderCard(
-                      order: c.orders[i],
-                      onTap: () => c.openOrder(c.orders[i]),
+                      order: c.activeOrders[i],
+                      onTap: () => c.openOrder(c.activeOrders[i]),
                     ),
                   ),
                 );
@@ -140,10 +180,69 @@ class OrdersPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }
+
+// ── Stat Chip ─────────────────────────────────────────────────────────────────
+
+class _StatChip extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 6),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value.toString(),
+                  style: TextStyle(
+                      color: color,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 10),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
+    );
+  }
+}
+
+// ── Order Card ────────────────────────────────────────────────────────────────
 
 class _OrderCard extends StatelessWidget {
   final OrderEntity order;
@@ -271,6 +370,179 @@ class _OrderCard extends StatelessWidget {
         _           => Colors.orange.shade300,
       };
 }
+
+// ── Staff Detail Card ─────────────────────────────────────────────────────────
+
+class _StaffDetailCard extends StatelessWidget {
+  final SessionManager session;
+  const _StaffDetailCard({required this.session});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final user = session.currentUser.value;
+      final store = session.currentStore.value;
+      if (user == null) return const SizedBox.shrink();
+
+      final initials = _initials(user.name);
+      final isAdmin = user.isAdmin;
+
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: AppGlassCard(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              // Avatar
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: AppTheme.primary.withValues(alpha: 0.5), width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                        color: AppTheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Staff info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            user.name ?? 'Staff',
+                            style: const TextStyle(
+                                color: AppTheme.textPrimary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Role badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: (isAdmin ? Colors.purple : AppTheme.primary)
+                                .withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color:
+                                  (isAdmin ? Colors.purple : AppTheme.primary)
+                                      .withValues(alpha: 0.5),
+                            ),
+                          ),
+                          child: Text(
+                            isAdmin ? 'Admin' : 'Staff',
+                            style: TextStyle(
+                              color:
+                                  isAdmin ? Colors.purple : AppTheme.primary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (user.email != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        user.email!,
+                        style: const TextStyle(
+                            color: AppTheme.textSecondary, fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    const SizedBox(height: 6),
+                    // Store info
+                    Row(
+                      children: [
+                        const Icon(Icons.store_rounded,
+                            color: AppTheme.textSecondary, size: 13),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            store?.name ?? 'Loading store...',
+                            style: const TextStyle(
+                                color: AppTheme.textSecondary, fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (store?.storeCode != null) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.teal.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                  color: Colors.teal.withValues(alpha: 0.4)),
+                            ),
+                            child: Text(
+                              store!.storeCode!,
+                              style: const TextStyle(
+                                  color: Colors.teal,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    if (store?.address != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined,
+                              color: AppTheme.textSecondary, size: 12),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              store!.address!,
+                              style: const TextStyle(
+                                  color: AppTheme.textSecondary, fontSize: 11),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
+  String _initials(String? name) {
+    if (name == null || name.isEmpty) return '?';
+    final parts = name.trim().split(' ');
+    if (parts.length == 1) return parts[0][0].toUpperCase();
+    return '${parts[0][0]}${parts[parts.length - 1][0]}'.toUpperCase();
+  }
+}
+
+// ── Status Badge ──────────────────────────────────────────────────────────────
 
 class _StatusBadge extends StatelessWidget {
   final String status;

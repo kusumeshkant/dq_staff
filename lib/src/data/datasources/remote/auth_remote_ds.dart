@@ -60,6 +60,14 @@ class AuthRemoteDs {
     }
   ''';
 
+  static const _storeQuery = r'''
+    query Store($id: ID!) {
+      store(id: $id) {
+        id name address storeCode
+      }
+    }
+  ''';
+
   static const _updateFcmMutation = r'''
     mutation UpdateFcmToken($token: String!) {
       updateFcmToken(token: $token)
@@ -122,6 +130,21 @@ class AuthRemoteDs {
     } else {
       _logSuccess('updateFcmToken', true);
     }
+  }
+
+  Future<Map<String, dynamic>?> getStoreById(String id) async {
+    _logRequest('getStoreById [query: Store]', {'id': id});
+    final result = await _client.query(
+      QueryOptions(
+        document: gql(_storeQuery),
+        variables: {'id': id},
+        fetchPolicy: FetchPolicy.networkOnly,
+      ),
+    );
+    _check('getStoreById', result);
+    final data = result.data!['store'] as Map<String, dynamic>?;
+    _logSuccess('getStoreById', data?['name']);
+    return data;
   }
 
   Future<void> signOut() async {
