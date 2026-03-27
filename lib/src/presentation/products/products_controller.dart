@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
@@ -19,6 +20,8 @@ class ProductsController extends GetxController {
   final searchQuery = ''.obs;
   final searchController = TextEditingController();
 
+  Timer? _pollingTimer;
+
   List<ProductEntity> get filtered {
     final q = searchQuery.value.toLowerCase();
     if (q.isEmpty) return products;
@@ -35,12 +38,26 @@ class ProductsController extends GetxController {
     super.onInit();
     loadProducts();
     searchController.addListener(() => searchQuery.value = searchController.text);
+    _pollingTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => _silentRefresh(),
+    );
   }
 
   @override
   void onClose() {
+    _pollingTimer?.cancel();
     searchController.dispose();
     super.onClose();
+  }
+
+  Future<void> _silentRefresh() async {
+    final storeId = Get.find<SessionManager>().storeId;
+    if (storeId == null) return;
+    try {
+      final result = await getStoreProductsUseCase.execute(storeId);
+      products.assignAll(result);
+    } catch (_) {}
   }
 
   Future<void> loadProducts() async {

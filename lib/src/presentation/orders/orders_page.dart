@@ -10,6 +10,7 @@ import '../auth/login/login_binding.dart';
 import '../auth/login/login_page.dart';
 import '../failed_orders/failed_orders_page.dart';
 import '../home/home_controller.dart';
+import '../products/products_controller.dart';
 import '../scanner/scanner_page.dart';
 import '../scanner/scanner_binding.dart';
 import 'orders_controller.dart';
@@ -35,6 +36,9 @@ class OrdersPage extends StatelessWidget {
               icon: const Icon(Icons.logout_rounded),
               tooltip: 'Sign out',
               onPressed: () async {
+                try { Get.delete<OrdersController>(force: true); } catch (_) {}
+                try { Get.delete<ProductsController>(force: true); } catch (_) {}
+                try { Get.delete<HomeController>(force: true); } catch (_) {}
                 Get.find<SessionManager>().clearUser();
                 GraphQLClientProvider.reset();
                 await FirebaseAuth.instance.signOut();

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/order_entity.dart';
@@ -33,6 +34,8 @@ class OrdersController extends GetxController {
   final searchController = TextEditingController();
   final isSearching = false.obs;
 
+  Timer? _pollingTimer;
+
   // ── Stats ─────────────────────────────────────────────────────────────────
   int get activeCount => activeOrders.length;
   int get failedCount => failedOrders.length;
@@ -42,12 +45,27 @@ class OrdersController extends GetxController {
   void onInit() {
     super.onInit();
     loadOrders();
+    _pollingTimer = Timer.periodic(
+      const Duration(seconds: 30),
+      (_) => _silentRefresh(),
+    );
   }
 
   @override
   void onClose() {
+    _pollingTimer?.cancel();
     searchController.dispose();
     super.onClose();
+  }
+
+  Future<void> _silentRefresh() async {
+    final storeId = Get.find<SessionManager>().storeId;
+    if (storeId == null) return;
+    try {
+      final result = await getStoreOrdersUseCase.execute(storeId);
+      orders.assignAll(result);
+      _updateDerivedLists();
+    } catch (_) {}
   }
 
   Future<void> loadOrders() async {

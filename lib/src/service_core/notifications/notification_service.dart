@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import '../../presentation/orders/orders_controller.dart';
+import '../../presentation/products/products_controller.dart';
 
 class NotificationService extends GetxService {
   final _fcm = FirebaseMessaging.instance;
@@ -44,9 +46,20 @@ class NotificationService extends GetxService {
           ),
         );
       }
+      if (msg.data['type'] == 'new_order') _refreshOrders();
+    });
+
+    // Background: user taps the notification
+    FirebaseMessaging.onMessageOpenedApp.listen((msg) {
+      if (msg.data['type'] == 'new_order') _refreshOrders();
     });
 
     return this;
+  }
+
+  void _refreshOrders() {
+    try { Get.find<OrdersController>().loadOrders(); } catch (_) {}
+    try { Get.find<ProductsController>().loadProducts(); } catch (_) {}
   }
 
   Future<String?> getToken() => _fcm.getToken();
