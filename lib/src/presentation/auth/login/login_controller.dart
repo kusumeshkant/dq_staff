@@ -7,6 +7,8 @@ import '../../../service_core/networks/graphql_client_provider.dart';
 import '../../../service_core/notifications/notification_service.dart';
 import '../../home/home_binding.dart';
 import '../../home/home_page.dart';
+import '../../invite/invite_code_binding.dart';
+import '../../invite/invite_code_page.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepo;
@@ -48,22 +50,21 @@ class LoginController extends GetxController {
 
       final user = await getProfileUseCase.execute();
 
+      final session = Get.find<SessionManager>();
+      session.setUser(user);
+
+      // No storeId yet → staff needs to enter their invite code
+      if (user.storeId == null || user.storeId!.isEmpty) {
+        Get.offAll(() => const InviteCodePage(), binding: InviteCodeBinding());
+        return;
+      }
+
       if (!user.isStaff && !user.isAdmin) {
         await authRepo.signOut();
         GraphQLClientProvider.reset();
-        errorMessage.value = 'Account not activated yet. Contact your admin.';
+        errorMessage.value = 'Access denied. Contact your store admin.';
         return;
       }
-
-      if (user.storeId == null) {
-        await authRepo.signOut();
-        GraphQLClientProvider.reset();
-        errorMessage.value = 'No store assigned to your account. Contact admin.';
-        return;
-      }
-
-      final session = Get.find<SessionManager>();
-      session.setUser(user);
 
       // Fetch store details for the staff card
       try {
