@@ -30,6 +30,9 @@ class OrdersController extends GetxController {
   // My completed: orders this staff personally completed
   final RxList<OrderEntity> myCompletedOrders = <OrderEntity>[].obs;
 
+  // All completed: every order with status == 'completed' in this store
+  final RxList<OrderEntity> completedOrders = <OrderEntity>[].obs;
+
   final isLoading = false.obs;
   final searchController = TextEditingController();
   final isSearching = false.obs;
@@ -40,6 +43,7 @@ class OrdersController extends GetxController {
   int get activeCount => activeOrders.length;
   int get failedCount => failedOrders.length;
   int get myCompletedCount => myCompletedOrders.length;
+  int get completedCount => completedOrders.length;
 
   @override
   void onInit() {
@@ -100,6 +104,10 @@ class OrdersController extends GetxController {
 
     failedOrders.assignAll(
       all.where((o) => o.status == 'cancelled' || o.isFlagged),
+    );
+
+    completedOrders.assignAll(
+      all.where((o) => o.status == 'completed'),
     );
 
     if (staffId != null) {

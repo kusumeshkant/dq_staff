@@ -5,6 +5,8 @@ import '../../../widgets/themed_background.dart';
 import '../my_orders/my_orders_page.dart';
 import '../orders/orders_page.dart';
 import '../products/products_page.dart';
+import '../exit_validation/exit_validation_page.dart';
+import '../exit_validation/exit_validation_binding.dart';
 import 'home_controller.dart';
 
 class HomePage extends StatelessWidget {
@@ -13,6 +15,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
+    ExitValidationBinding().dependencies();
 
     return ThemedBackground(
       child: Obx(() => Scaffold(
@@ -23,6 +26,7 @@ class HomePage extends StatelessWidget {
                 OrdersPage(),
                 ProductsPage(),
                 MyOrdersPage(),
+                ExitValidationPage(),
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -50,6 +54,11 @@ class HomePage extends StatelessWidget {
                   icon: Icon(Icons.person_outline_rounded),
                   activeIcon: Icon(Icons.person_rounded),
                   label: 'My Orders',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.exit_to_app_outlined),
+                  activeIcon: Icon(Icons.exit_to_app_rounded),
+                  label: 'Validate Exit',
                 ),
               ],
             ),

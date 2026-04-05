@@ -27,6 +27,7 @@ class ProductsPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         backgroundColor: AppTheme.primary,
         onPressed: () => _openAddProduct(c),
         child: const Icon(Icons.add_rounded, color: Colors.white),

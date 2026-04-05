@@ -8,6 +8,7 @@ import '../../service_core/networks/graphql_client_provider.dart';
 import '../../theme/app_theme.dart';
 import '../auth/login/login_binding.dart';
 import '../auth/login/login_page.dart';
+import '../completed_orders/completed_orders_page.dart';
 import '../failed_orders/failed_orders_page.dart';
 import '../home/home_controller.dart';
 import '../products/products_controller.dart';
@@ -48,6 +49,7 @@ class OrdersPage extends StatelessWidget {
           ],
         ),
         floatingActionButton: FloatingActionButton(
+          heroTag: null,
           backgroundColor: AppTheme.primary,
           onPressed: () => Get.to(
             () => const ScannerPage(),
@@ -87,6 +89,14 @@ class OrdersPage extends StatelessWidget {
                         icon: Icons.check_circle_rounded,
                         onTap: () =>
                             Get.find<HomeController>().goToTab(2),
+                      ),
+                      const SizedBox(width: 8),
+                      _StatChip(
+                        label: 'Completed',
+                        value: c.completedCount,
+                        color: Colors.teal,
+                        icon: Icons.done_all_rounded,
+                        onTap: () => Get.to(() => const CompletedOrdersPage()),
                       ),
                     ],
                   ),
