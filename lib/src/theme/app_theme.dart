@@ -54,5 +54,10 @@ class AppTheme {
           labelStyle: const TextStyle(color: textSecondary),
           hintStyle: const TextStyle(color: textSecondary),
         ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: primary,
+          selectionColor: Color(0x441565C0),
+          selectionHandleColor: primary,
+        ),
       );
 }

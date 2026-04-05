@@ -100,6 +100,8 @@ class DQStaffApp extends StatelessWidget {
       title: 'DQ Staff',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.dark,
       initialBinding: binding,
       home: home,
     );
