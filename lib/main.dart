@@ -1,10 +1,13 @@
 import 'package:dq_staff/src/data/datasources/remote/auth_remote_ds.dart';
 import 'package:dq_staff/src/data/repo_impl/auth_repository_impl.dart';
+import 'package:dq_staff/src/domain/entity/user_entity.dart';
 import 'package:dq_staff/src/domain/usecase/get_profile_usecase.dart';
 import 'package:dq_staff/src/presentation/auth/login/login_binding.dart';
 import 'package:dq_staff/src/presentation/auth/login/login_page.dart';
 import 'package:dq_staff/src/presentation/home/home_binding.dart';
 import 'package:dq_staff/src/presentation/home/home_page.dart';
+import 'package:dq_staff/src/presentation/invite/invite_code_binding.dart';
+import 'package:dq_staff/src/presentation/invite/invite_code_page.dart';
 import 'package:dq_staff/src/service_core/auth/session_manager.dart';
 import 'package:dq_staff/src/service_core/networks/graphql_client_provider.dart';
 import 'package:dq_staff/src/service_core/notifications/notification_service.dart';
@@ -36,10 +39,17 @@ void main() async {
   ));
 }
 
+/// Cold-start routing.
+///
+/// Priority:
+///   1. Live backend profile (if reachable)  → cache it and route
+///   2. Cached profile (if network fails)    → route from cache
+///   3. No cache + no network                → login (Firebase session kept)
 Future<_StartConfig> _resolveStartPage(SessionManager session) async {
   final firebaseUser = FirebaseAuth.instance.currentUser;
 
   if (firebaseUser == null) {
+    await session.clearCache();
     return _StartConfig(page: const LoginPage(), binding: LoginBinding());
   }
 
@@ -50,36 +60,51 @@ Future<_StartConfig> _resolveStartPage(SessionManager session) async {
       AuthRepositoryImpl(AuthRemoteDs()),
     ).execute();
 
-    if (!user.isStaff && !user.isAdmin) {
-      await FirebaseAuth.instance.signOut();
-      GraphQLClientProvider.reset();
-      return _StartConfig(page: const LoginPage(), binding: LoginBinding());
-    }
-
-    if (user.storeId == null) {
-      await FirebaseAuth.instance.signOut();
-      GraphQLClientProvider.reset();
-      return _StartConfig(page: const LoginPage(), binding: LoginBinding());
-    }
-
-    session.setUser(user);
-
-    // Fetch and cache store details for the staff detail card
-    if (user.storeId != null) {
-      try {
-        final store = await AuthRepositoryImpl(AuthRemoteDs())
-            .getStoreById(user.storeId!);
-        if (store != null) session.setStore(store);
-      } catch (_) {}
-    }
-
-    return _StartConfig(
-      page: const HomePage(),
-      binding: HomeBinding(),
-    );
+    // Cache on every successful fetch so offline cold starts work.
+    await session.cacheProfile(user);
+    return _routeFrom(session, user);
   } catch (_) {
+    // Network / auth error — fall back to cached profile so staff are not
+    // kicked to login just because the backend was momentarily unreachable.
+    final cached = await session.loadCachedProfile();
+    if (cached != null) {
+      return _routeFrom(session, cached);
+    }
+    // No cache — ask the user to sign in when online.
+    // Do NOT call FirebaseAuth.signOut(): the Firebase session is valid.
     return _StartConfig(page: const LoginPage(), binding: LoginBinding());
   }
+}
+
+/// Routes based on role and store assignment.
+_StartConfig _routeFrom(SessionManager session, UserEntity user) {
+  session.setUser(user);
+
+  if (!user.isStaff && !user.isAdmin) {
+    // Valid Firebase account but not a staff member — go to login.
+    // Do not sign out; they may be a customer who downloaded the wrong app.
+    return _StartConfig(page: const LoginPage(), binding: LoginBinding());
+  }
+
+  if (user.storeId == null || user.storeId!.isEmpty) {
+    // Staff account exists but no store assigned yet.
+    return _StartConfig(
+      page: const InviteCodePage(),
+      binding: InviteCodeBinding(),
+    );
+  }
+
+  // Fetch store details best-effort (non-blocking — staff card shows cached)
+  _fetchStoreAsync(session, user.storeId!);
+
+  return _StartConfig(page: const HomePage(), binding: HomeBinding());
+}
+
+/// Fire-and-forget store fetch so it does not block the cold-start route.
+void _fetchStoreAsync(SessionManager session, String storeId) {
+  AuthRepositoryImpl(AuthRemoteDs()).getStoreById(storeId).then((store) {
+    if (store != null) session.setStore(store);
+  }).catchError((_) {});
 }
 
 class _StartConfig {

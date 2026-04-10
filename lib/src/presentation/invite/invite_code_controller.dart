@@ -79,12 +79,9 @@ class InviteCodeController extends GetxController {
   }
 
   Future<void> signOut() async {
-    try {
-      await authRepo.signOut();
-      GraphQLClientProvider.reset();
-      Get.find<SessionManager>().clearUser();
-    } catch (_) {}
-    Get.offAll(() => const LoginPage(), binding: LoginBinding());
+    GraphQLClientProvider.reset();
+    try { await authRepo.signOut(); } catch (_) {}
+    await Get.find<SessionManager>().expireSession();
   }
 
   @override

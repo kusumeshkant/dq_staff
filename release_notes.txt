@@ -1,0 +1,5 @@
+v1.0.2+13 — RBAC implementation + improvements
+- Staff login validates role from live backend profile on every cold start
+- Non-staff accounts are blocked and routed back to login
+- Invite flow, order management, and session handling improvements
+- GraphQL client handles token refresh and session expiry correctly

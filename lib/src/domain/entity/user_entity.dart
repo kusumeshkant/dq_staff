@@ -4,6 +4,7 @@ class UserEntity {
   final String? email;
   final String? phone;
   final String role;
+  final List<String> roles;
   final String? storeId;
 
   const UserEntity({
@@ -12,9 +13,11 @@ class UserEntity {
     this.email,
     this.phone,
     required this.role,
+    this.roles = const ['customer'],
     this.storeId,
   });
 
-  bool get isStaff => role == 'staff';
-  bool get isAdmin => role == 'admin';
+  bool get isStaff => roles.contains('staff');
+  bool get isAdmin => roles.contains('admin');
+  bool get isCustomer => roles.contains('customer');
 }
