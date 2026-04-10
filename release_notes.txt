@@ -1,5 +1,30 @@
-v1.0.2+13 — RBAC implementation + improvements
-- Staff login validates role from live backend profile on every cold start
-- Non-staff accounts are blocked and routed back to login
-- Invite flow, order management, and session handling improvements
-- GraphQL client handles token refresh and session expiry correctly
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DQ Staff  |  v1.0.2+14  |  TESTING BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  This build is for internal testing only.
+    Do NOT share outside the test team.
+
+─────────────────────────────────────
+ WHAT TO TEST
+─────────────────────────────────────
+• Register → enter invite code from admin
+• Receive push notification on new order
+• Accept → process → mark ready for pickup
+• Scan customer QR code → complete order
+• Remove staff from admin → verify blocked on relaunch
+
+─────────────────────────────────────
+ SECURITY FIXES IN THIS BUILD
+─────────────────────────────────────
+• Non-staff accounts blocked at cold start
+• GraphQL token refresh handles session expiry correctly
+• Invite flow and session persistence improved
+
+─────────────────────────────────────
+ KNOWN SCOPE
+─────────────────────────────────────
+• Android only
+• Backend: https://de-backend-iota.vercel.app/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
