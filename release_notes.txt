@@ -1,30 +1,12 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  DQ Staff  |  v1.0.2+14  |  TESTING BUILD
+  DQ Staff  |  v1.0.2+15  |  TESTING BUILD
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️  This build is for internal testing only.
-    Do NOT share outside the test team.
 
-─────────────────────────────────────
- WHAT TO TEST
-─────────────────────────────────────
-• Register → enter invite code from admin
-• Receive push notification on new order
-• Accept → process → mark ready for pickup
-• Scan customer QR code → complete order
-• Remove staff from admin → verify blocked on relaunch
+🔧 Infrastructure
+  • Backend migrated from Vercel → Azure Container Apps
+  • Faster cold starts, better reliability
+  • No feature changes — all flows unchanged
 
-─────────────────────────────────────
- SECURITY FIXES IN THIS BUILD
-─────────────────────────────────────
-• Non-staff accounts blocked at cold start
-• GraphQL token refresh handles session expiry correctly
-• Invite flow and session persistence improved
-
-─────────────────────────────────────
- KNOWN SCOPE
-─────────────────────────────────────
-• Android only
-• Backend: https://de-backend-iota.vercel.app/
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Please test order management and queue operations as normal.
