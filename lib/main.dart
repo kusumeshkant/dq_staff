@@ -10,6 +10,7 @@ import 'package:dq_staff/src/presentation/invite/invite_code_binding.dart';
 import 'package:dq_staff/src/presentation/invite/invite_code_page.dart';
 import 'package:dq_staff/src/service_core/auth/session_manager.dart';
 import 'package:dq_staff/src/service_core/networks/graphql_client_provider.dart';
+import 'package:dq_staff/src/service_core/subscription/subscription_manager.dart';
 import 'package:dq_staff/src/service_core/notifications/notification_service.dart';
 import 'package:dq_staff/src/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,6 +30,7 @@ void main() async {
   ));
 
   final sessionManager = Get.put(SessionManager());
+  Get.put(SubscriptionManager());
   await Get.putAsync(() => NotificationService().init());
 
   final startConfig = await _resolveStartPage(sessionManager);
@@ -96,6 +98,9 @@ _StartConfig _routeFrom(SessionManager session, UserEntity user) {
 
   // Fetch store details best-effort (non-blocking — staff card shows cached)
   _fetchStoreAsync(session, user.storeId!);
+
+  // Load subscription in background — passive, does not block home render.
+  Get.find<SubscriptionManager>().load(user.storeId!);
 
   return _StartConfig(page: const HomePage(), binding: HomeBinding());
 }
