@@ -1,9 +1,11 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  DQ Staff  |  v1.0.2+18  |  PHASE 2A TESTING BUILD
+  DQ Staff  |  v1.0.2+19  |  PHASE 2A — DEV BUILD
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 ⚠️  This build is for internal testing only.
     DO NOT share outside the team.
+
+🔗 Backend: DEV (https://de-backend-iota.vercel.app/graphql)
 
 ━━━ WHAT'S NEW IN THIS BUILD ━━━
 
