@@ -2,7 +2,7 @@ name: dq_staff
 description: DQ Staff app — order management for store staff.
 publish_to: 'none'
 
-version: 1.0.2+19
+version: 1.0.2+20
 
 environment:
   sdk: ">=3.8.1 <4.0.0"
