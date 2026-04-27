@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import '../../domain/entity/order_entity.dart';
 import '../../service_core/auth/session_manager.dart';
 import '../../service_core/networks/graphql_client_provider.dart';
+import '../../service_core/permission/permission_service.dart';
 import '../../theme/app_theme.dart';
+import '../access/access_controller.dart';
 import '../completed_orders/completed_orders_page.dart';
 import '../failed_orders/failed_orders_page.dart';
 import '../home/home_controller.dart';
@@ -38,6 +40,8 @@ class OrdersPage extends StatelessWidget {
                 // Clean up controllers before navigation
                 try { Get.delete<OrdersController>(force: true); } catch (_) {}
                 try { Get.delete<ProductsController>(force: true); } catch (_) {}
+                try { Get.delete<AccessController>(force: true); } catch (_) {}
+                try { Get.delete<PermissionService>(force: true); } catch (_) {}
                 try { Get.delete<HomeController>(force: true); } catch (_) {}
                 GraphQLClientProvider.reset();
                 await FirebaseAuth.instance.signOut();

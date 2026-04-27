@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
+import '../../service_core/permission/permission_service.dart';
 import '../../theme/app_theme.dart';
 import '../../../widgets/app_glass_card.dart';
 import 'add_edit_product_binding.dart';
@@ -26,12 +27,16 @@ class ProductsPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        backgroundColor: AppTheme.primary,
-        onPressed: () => _openAddProduct(c),
-        child: const Icon(Icons.add_rounded, color: Colors.white),
-      ),
+      floatingActionButton: Obx(() {
+        final ps = Get.find<PermissionService>();
+        if (!ps.canAddProduct.value) return const SizedBox.shrink();
+        return FloatingActionButton(
+          heroTag: null,
+          backgroundColor: AppTheme.primary,
+          onPressed: () => _openAddProduct(c),
+          child: const Icon(Icons.add_rounded, color: Colors.white),
+        );
+      }),
       body: Column(
         children: [
           // Search bar
@@ -85,11 +90,16 @@ class ProductsPage extends StatelessWidget {
                 child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
                   itemCount: list.length,
-                  itemBuilder: (_, i) => _ProductCard(
-                    product: list[i],
-                    onEdit: () => _openEditProduct(c, list[i]),
-                    onDelete: () => c.confirmDelete(list[i]),
-                  ),
+                  itemBuilder: (_, i) {
+                    final ps = Get.find<PermissionService>();
+                    return Obx(() => _ProductCard(
+                      product: list[i],
+                      canEdit: ps.canEditProductInfo.value,
+                      canDelete: ps.canDeleteProduct.value,
+                      onEdit: () => _openEditProduct(c, list[i]),
+                      onDelete: () => c.confirmDelete(list[i]),
+                    ));
+                  },
                 ),
               );
             }),
@@ -130,11 +140,15 @@ class ProductsPage extends StatelessWidget {
 
 class _ProductCard extends StatelessWidget {
   final ProductEntity product;
+  final bool canEdit;
+  final bool canDelete;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   const _ProductCard({
     required this.product,
+    required this.canEdit,
+    required this.canDelete,
     required this.onEdit,
     required this.onDelete,
   });
@@ -216,29 +230,32 @@ class _ProductCard extends StatelessWidget {
             ),
           ),
 
-          // Edit / Delete actions
-          Column(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined,
-                    color: AppTheme.primary, size: 20),
-                onPressed: onEdit,
-                tooltip: 'Edit',
-                constraints:
-                    const BoxConstraints(minWidth: 36, minHeight: 36),
-                padding: EdgeInsets.zero,
-              ),
-              IconButton(
-                icon: Icon(Icons.delete_outline,
-                    color: Colors.red.withValues(alpha: 0.8), size: 20),
-                onPressed: onDelete,
-                tooltip: 'Delete',
-                constraints:
-                    const BoxConstraints(minWidth: 36, minHeight: 36),
-                padding: EdgeInsets.zero,
-              ),
-            ],
-          ),
+          // Edit / Delete actions — only shown if permitted
+          if (canEdit || canDelete)
+            Column(
+              children: [
+                if (canEdit)
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined,
+                        color: AppTheme.primary, size: 20),
+                    onPressed: onEdit,
+                    tooltip: 'Edit',
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                    padding: EdgeInsets.zero,
+                  ),
+                if (canDelete)
+                  IconButton(
+                    icon: Icon(Icons.delete_outline,
+                        color: Colors.red.withValues(alpha: 0.8), size: 20),
+                    onPressed: onDelete,
+                    tooltip: 'Delete',
+                    constraints:
+                        const BoxConstraints(minWidth: 36, minHeight: 36),
+                    padding: EdgeInsets.zero,
+                  ),
+              ],
+            ),
         ],
       ),
     );

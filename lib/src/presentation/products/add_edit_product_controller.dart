@@ -4,6 +4,7 @@ import '../../domain/entity/product_entity.dart';
 import '../../domain/usecase/create_product_usecase.dart';
 import '../../domain/usecase/update_product_usecase.dart';
 import '../../service_core/auth/session_manager.dart';
+import '../../service_core/permission/permission_service.dart';
 
 class AddEditProductController extends GetxController {
   final CreateProductUseCase createProductUseCase;
@@ -26,6 +27,9 @@ class AddEditProductController extends GetxController {
   late final TextEditingController stockController;
 
   bool get isEditing => existing != null;
+
+  bool get isStaff =>
+      !(Get.find<SessionManager>().currentUser.value?.isAdmin ?? false);
 
   @override
   void onInit() {
@@ -62,6 +66,31 @@ class AddEditProductController extends GetxController {
     final priceText = priceController.text.trim();
     final stockText = stockController.text.trim();
 
+    // Permission pre-flight — backend will also reject, but fail fast with a clear message.
+    try {
+      final ps = Get.find<PermissionService>();
+      if (!isEditing && !ps.canAddProduct.value) {
+        Get.snackbar('No Permission',
+            'You do not have permission to add products. Request access in the Access tab.',
+            backgroundColor: Colors.red.shade700,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 4));
+        return;
+      }
+      if (isEditing && !ps.canEditProductInfo.value) {
+        Get.snackbar('No Permission',
+            'You do not have permission to edit products. Request access in the Access tab.',
+            backgroundColor: Colors.red.shade700,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 4));
+        return;
+      }
+    } catch (_) {
+      // PermissionService not loaded yet — let backend decide.
+    }
+
     if (!isEditing && barcode.isEmpty) {
       Get.snackbar('Missing', 'Barcode is required.',
           backgroundColor: Colors.orange,
@@ -76,21 +105,29 @@ class AddEditProductController extends GetxController {
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
-    final price = double.tryParse(priceText);
-    if (price == null || price < 0) {
-      Get.snackbar('Invalid', 'Enter a valid price.',
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-    final stock = int.tryParse(stockText);
-    if (stock == null || stock < 0) {
-      Get.snackbar('Invalid', 'Enter a valid stock quantity.',
-          backgroundColor: Colors.orange,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM);
-      return;
+
+    // Staff users don't set price/stock — admin will configure them later.
+    double price = 0;
+    int stock = 0;
+    if (!isStaff) {
+      final parsedPrice = double.tryParse(priceText);
+      if (parsedPrice == null || parsedPrice < 0) {
+        Get.snackbar('Invalid', 'Enter a valid price.',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+      price = parsedPrice;
+      final parsedStock = int.tryParse(stockText);
+      if (parsedStock == null || parsedStock < 0) {
+        Get.snackbar('Invalid', 'Enter a valid stock quantity.',
+            backgroundColor: Colors.orange,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+      stock = parsedStock;
     }
 
     final sku = skuController.text.trim().isEmpty ? null : skuController.text.trim();

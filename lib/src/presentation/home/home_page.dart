@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../service_core/permission/permission_service.dart';
 import '../../theme/app_theme.dart';
 import '../../../widgets/themed_background.dart';
+import '../access/access_page.dart';
 import '../my_orders/my_orders_page.dart';
 import '../orders/orders_page.dart';
 import '../products/products_page.dart';
@@ -27,6 +29,7 @@ class HomePage extends StatelessWidget {
                 ProductsPage(),
                 MyOrdersPage(),
                 ExitValidationPage(),
+                AccessPage(),
               ],
             ),
             bottomNavigationBar: BottomNavigationBar(
@@ -39,26 +42,54 @@ class HomePage extends StatelessWidget {
               selectedLabelStyle: const TextStyle(
                   fontSize: 11, fontWeight: FontWeight.w600),
               unselectedLabelStyle: const TextStyle(fontSize: 11),
-              items: const [
-                BottomNavigationBarItem(
+              items: [
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.receipt_long_outlined),
                   activeIcon: Icon(Icons.receipt_long_rounded),
                   label: 'Orders',
                 ),
-                BottomNavigationBarItem(
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.inventory_2_outlined),
                   activeIcon: Icon(Icons.inventory_2_rounded),
                   label: 'Inventory',
                 ),
-                BottomNavigationBarItem(
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.person_outline_rounded),
                   activeIcon: Icon(Icons.person_rounded),
                   label: 'My Orders',
                 ),
-                BottomNavigationBarItem(
+                const BottomNavigationBarItem(
                   icon: Icon(Icons.exit_to_app_outlined),
                   activeIcon: Icon(Icons.exit_to_app_rounded),
                   label: 'Validate Exit',
+                ),
+                BottomNavigationBarItem(
+                  icon: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(Icons.verified_user_outlined),
+                      Obx(() {
+                        final ps = Get.find<PermissionService>();
+                        final anyGranted = ps.canDiscount.value ||
+                            ps.canEditProductInfo.value ||
+                            ps.canAddProduct.value ||
+                            ps.canDeleteProduct.value;
+                        if (!anyGranted) return const SizedBox.shrink();
+                        return Positioned(
+                          top: -2, right: -2,
+                          child: Container(
+                            width: 8, height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade400,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+                  ),
+                  activeIcon: const Icon(Icons.verified_user_rounded),
+                  label: 'Access',
                 ),
               ],
             ),

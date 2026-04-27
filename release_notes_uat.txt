@@ -1,0 +1,18 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DQ Staff  |  v1.0.2+15  |  UAT BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪  UAT BUILD — For testers only.
+
+🔧 Environment
+  • Backend: Vercel (staging server)
+  • Flavor: uat  |  App ID: com.example.dq_staff.uat
+  • Installs alongside Dev and Prod apps
+
+📋 What to test
+  • Order queue management
+  • Token status updates
+  • Push notifications on order changes
+  • Staff login and role access
+
+⚠️  Report issues before prod sign-off.
