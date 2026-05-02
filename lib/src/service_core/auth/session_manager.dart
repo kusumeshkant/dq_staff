@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -79,6 +80,14 @@ class SessionManager extends GetxService {
   Future<void> expireSession() async {
     if (_isExpiring) return;
     _isExpiring = true;
+
+    // Sign out from Firebase so the next cold start finds no live credential.
+    // Must happen before clearing the local cache to avoid a race where the
+    // app restarts and AuthLink fetches a token before Firebase is signed out.
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+
     await clearCache();
     clearUser();
     Get.closeAllSnackbars();
@@ -102,6 +111,7 @@ class SessionManager extends GetxService {
           duration: const Duration(seconds: 4),
           icon: const Icon(Icons.lock_outline, color: Colors.white),
         );
+        _isExpiring = false; // reset so future logins can expire again
       });
     });
   }
