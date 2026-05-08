@@ -5,6 +5,7 @@ abstract class AuthRepository {
   Future<void> loginWithEmail(String email, String password);
   Future<void> registerWithEmail(String email, String password);
   Future<UserEntity> getProfile();
+  Future<UserEntity> validateAppAccess();
   Future<StoreEntity?> getStoreById(String id);
   Future<void> updateProfileName(String name);
   Future<void> updateFcmToken(String token);

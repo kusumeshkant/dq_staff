@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../domain/usecase/get_profile_usecase.dart';
 import '../../../domain/repo/auth_repository.dart';
 import '../../../service_core/auth/session_manager.dart';
 import '../../../service_core/networks/graphql_client_provider.dart';
@@ -12,12 +11,8 @@ import '../../invite/invite_code_page.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepo;
-  final GetProfileUseCase getProfileUseCase;
 
-  LoginController({
-    required this.authRepo,
-    required this.getProfileUseCase,
-  });
+  LoginController({required this.authRepo});
 
   final isLoading = false.obs;
   final errorMessage = ''.obs;
@@ -48,7 +43,10 @@ class LoginController extends GetxController {
       await authRepo.loginWithEmail(email, password);
       await GraphQLClientProvider.reinitWithToken();
 
-      final user = await getProfileUseCase.execute();
+      // validateAppAccess enforces role separation on the backend and returns
+      // specific, user-readable error messages when the wrong account type is
+      // used (e.g. customer account, or unregistered account).
+      final user = await authRepo.validateAppAccess();
 
       final session = Get.find<SessionManager>();
       session.setUser(user);
@@ -56,13 +54,6 @@ class LoginController extends GetxController {
       // No storeId yet → staff needs to enter their invite code
       if (user.storeId == null || user.storeId!.isEmpty) {
         Get.offAll(() => const InviteCodePage(), binding: InviteCodeBinding());
-        return;
-      }
-
-      if (!user.isStaff && !user.isAdmin) {
-        await authRepo.signOut();
-        GraphQLClientProvider.reset();
-        errorMessage.value = 'Access denied. Contact your store admin.';
         return;
       }
 
@@ -89,7 +80,18 @@ class LoginController extends GetxController {
         raw.contains('invalid-credential')) {
       return 'Invalid email or password.';
     }
-    if (raw.contains('network')) return 'Network error. Check your connection.';
+    if (raw.contains('network') || raw.contains('NO_NETWORK')) {
+      return 'Network error. Check your connection.';
+    }
+    if (raw.contains('SESSION_EXPIRED')) {
+      return 'Session expired. Please sign in again.';
+    }
+    // Pass through backend-originated messages verbatim — they are already
+    // user-readable (account separation errors, role errors, etc.).
+    if (raw.contains('Customer') || raw.contains('Staff') ||
+        raw.contains('No staff account') || raw.contains('does not have staff')) {
+      return raw.replaceFirst('Exception: ', '');
+    }
     return 'Login failed. Please try again.';
   }
 }

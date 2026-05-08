@@ -23,6 +23,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<UserEntity> validateAppAccess() async {
+    final json = await ds.validateAppAccess();
+    return UserModel.fromJson(json);
+  }
+
+  @override
   Future<StoreEntity?> getStoreById(String id) async {
     final json = await ds.getStoreById(id);
     if (json == null) return null;

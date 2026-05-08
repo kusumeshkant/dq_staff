@@ -34,8 +34,8 @@ class RegisterController extends GetxController {
       errorMessage.value = 'Please fill in all fields.';
       return;
     }
-    if (password.length < 6) {
-      errorMessage.value = 'Password must be at least 6 characters.';
+    if (password.length < 8) {
+      errorMessage.value = 'Password must be at least 8 characters.';
       return;
     }
 

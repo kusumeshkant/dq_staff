@@ -61,6 +61,20 @@ class AuthRemoteDs {
     }
   ''';
 
+  static const _validateAppAccessMutation = r'''
+    mutation ValidateAppAccess($appId: String!) {
+      validateAppAccess(appId: $appId) {
+        id
+        name
+        email
+        phone
+        role
+        roles
+        storeId
+      }
+    }
+  ''';
+
   static const _storeQuery = r'''
     query Store($id: ID!) {
       store(id: $id) {
@@ -118,6 +132,29 @@ class AuthRemoteDs {
     _check('getProfile', result);
     final data = result.data!['me'] as Map<String, dynamic>;
     _logSuccess('getProfile', data);
+    return data;
+  }
+
+  Future<Map<String, dynamic>> validateAppAccess() async {
+    _logRequest('validateAppAccess [mutation: ValidateAppAccess]', {'appId': 'STAFF'});
+    final result = await _client.mutate(
+      MutationOptions(
+        document: gql(_validateAppAccessMutation),
+        variables: const {'appId': 'STAFF'},
+        fetchPolicy: FetchPolicy.networkOnly,
+      ),
+    );
+    if (result.hasException) {
+      _logError('validateAppAccess', result.exception!);
+      // Pass through backend error messages verbatim — they are already
+      // user-readable (account-separation errors, role errors, etc.).
+      if (result.exception!.graphqlErrors.isNotEmpty) {
+        throw Exception(result.exception!.graphqlErrors.first.message);
+      }
+      throw Exception(_errorMessage(result.exception!));
+    }
+    final data = result.data!['validateAppAccess'] as Map<String, dynamic>;
+    _logSuccess('validateAppAccess', data);
     return data;
   }
 
