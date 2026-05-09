@@ -1,12 +1,12 @@
 {
-    "name": "dq_staff",
-    "short_name": "dq_staff",
+    "name": "DQ Staff",
+    "short_name": "DQ Staff",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#1e293b",
+    "theme_color": "#1e293b",
+    "description": "DQ staff tool — validate exit QR codes and manage live orders in-store.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {
