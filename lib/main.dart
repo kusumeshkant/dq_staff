@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:dq_staff/src/data/datasources/remote/auth_remote_ds.dart';
 import 'package:dq_staff/src/data/repo_impl/auth_repository_impl.dart';
 import 'package:dq_staff/src/domain/entity/user_entity.dart';
@@ -14,29 +17,91 @@ import 'package:dq_staff/src/service_core/notifications/notification_service.dar
 import 'package:dq_staff/src/theme/app_theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'firebase_options.dart';
 
-void main() async {
+void main() {
+  // runZonedGuarded catches all uncaught async errors in the app's zone.
+  // Without this, any throw before runApp() produces a silent white screen.
+  runZonedGuarded(_bootstrap, (error, stack) {
+    debugPrint('\n=== [DQ-Staff] UNCAUGHT ZONE ERROR ===\n$error\n$stack\n=====================================\n');
+  });
+}
+
+Future<void> _bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-  ));
+  // Surface Flutter framework errors and platform dispatcher errors so a
+  // white-screen startup crash is always visible in DevTools console.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('\n=== [DQ-Staff] FLUTTER ERROR ===\n${details.exceptionAsString()}\n${details.stack}\n================================\n');
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    debugPrint('\n=== [DQ-Staff] PLATFORM ERROR ===\n$error\n$stack\n=================================\n');
+    return false;
+  };
 
+  // ── Step 1: Firebase ────────────────────────────────────────────────────────
+  debugPrint('[DQ-Staff] startup: Firebase.initializeApp...');
+  try {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    final opts = Firebase.app().options;
+    debugPrint('[DQ-Staff] startup: Firebase OK'
+        ' project=${opts.projectId}'
+        ' authDomain=${opts.authDomain}'
+        ' appId=${opts.appId}');
+    if (kIsWeb) {
+      // ignore: avoid_print
+      print('[DQ-Staff] window.origin=${Uri.base.origin}');
+    }
+  } catch (e, st) {
+    debugPrint('[DQ-Staff] startup: Firebase FAILED: $e\n$st');
+    rethrow; // fatal — app cannot function without Firebase
+  }
+
+  // ── Step 2: Platform UI (non-web only) ──────────────────────────────────────
+  if (!kIsWeb) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+    ));
+  }
+
+  // ── Step 3: GetX services ───────────────────────────────────────────────────
+  debugPrint('[DQ-Staff] startup: SessionManager...');
   final sessionManager = Get.put(SessionManager());
-  await Get.putAsync(() => NotificationService().init());
+  debugPrint('[DQ-Staff] startup: SessionManager OK');
 
+  debugPrint('[DQ-Staff] startup: NotificationService...');
+  try {
+    await Get.putAsync(() => NotificationService().init());
+    debugPrint('[DQ-Staff] startup: NotificationService OK');
+  } catch (e, st) {
+    // Non-fatal: the app functions without push notifications.
+    debugPrint('[DQ-Staff] startup: NotificationService FAILED (non-fatal): $e\n$st');
+    // Ensure the service is registered so Get.find<NotificationService>() works.
+    if (!Get.isRegistered<NotificationService>()) {
+      Get.put(NotificationService());
+    }
+  }
+
+  // ── Step 4: Initial page routing ────────────────────────────────────────────
+  debugPrint('[DQ-Staff] startup: resolving start page...');
   final startConfig = await _resolveStartPage(sessionManager);
+  debugPrint('[DQ-Staff] startup: start page = ${startConfig.page.runtimeType}');
 
+  // ── Step 5: Launch ──────────────────────────────────────────────────────────
+  debugPrint('[DQ-Staff] startup: runApp...');
   runApp(DQStaffApp(
     home: startConfig.page,
     binding: startConfig.binding,
   ));
+  debugPrint('[DQ-Staff] startup: runApp done');
 }
 
 /// Cold-start routing.
@@ -47,6 +112,7 @@ void main() async {
 ///   3. No cache + no network                → login (Firebase session kept)
 Future<_StartConfig> _resolveStartPage(SessionManager session) async {
   final firebaseUser = FirebaseAuth.instance.currentUser;
+  debugPrint('[DQ-Staff] _resolveStartPage: firebaseUser=${firebaseUser?.uid ?? "null"}');
 
   if (firebaseUser == null) {
     await session.clearCache();
@@ -55,23 +121,28 @@ Future<_StartConfig> _resolveStartPage(SessionManager session) async {
 
   try {
     await GraphQLClientProvider.reinitWithToken();
+    debugPrint('[DQ-Staff] _resolveStartPage: GraphQL client initialised');
 
     final user = await GetProfileUseCase(
       AuthRepositoryImpl(AuthRemoteDs()),
     ).execute();
+    debugPrint('[DQ-Staff] _resolveStartPage: profile fetched id=${user.id} role=${user.role}');
 
     // Cache on every successful fetch so offline cold starts work.
     await session.cacheProfile(user);
     return _routeFrom(session, user);
-  } catch (_) {
+  } catch (e) {
+    debugPrint('[DQ-Staff] _resolveStartPage: backend error, trying cache: $e');
     // Network / auth error — fall back to cached profile so staff are not
     // kicked to login just because the backend was momentarily unreachable.
     final cached = await session.loadCachedProfile();
     if (cached != null) {
+      debugPrint('[DQ-Staff] _resolveStartPage: routing from cache');
       return _routeFrom(session, cached);
     }
     // No cache — ask the user to sign in when online.
     // Do NOT call FirebaseAuth.signOut(): the Firebase session is valid.
+    debugPrint('[DQ-Staff] _resolveStartPage: no cache, routing to login');
     return _StartConfig(page: const LoginPage(), binding: LoginBinding());
   }
 }
@@ -79,10 +150,10 @@ Future<_StartConfig> _resolveStartPage(SessionManager session) async {
 /// Routes based on role and store assignment.
 _StartConfig _routeFrom(SessionManager session, UserEntity user) {
   session.setUser(user);
+  debugPrint('[DQ-Staff] _routeFrom: isStaff=${user.isStaff} isAdmin=${user.isAdmin} storeId=${user.storeId}');
 
   if (!user.isStaff && !user.isAdmin) {
     // Valid Firebase account but not a staff member — go to login.
-    // Do not sign out; they may be a customer who downloaded the wrong app.
     return _StartConfig(page: const LoginPage(), binding: LoginBinding());
   }
 
