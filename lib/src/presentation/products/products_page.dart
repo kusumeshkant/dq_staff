@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
@@ -117,7 +118,7 @@ class ProductsPage extends StatelessWidget {
     if (result != null) {
       c.upsertProduct(result);
       Get.snackbar('Added', '${result.name} added to inventory.',
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -131,7 +132,7 @@ class ProductsPage extends StatelessWidget {
     if (result != null) {
       c.upsertProduct(result);
       Get.snackbar('Updated', '${result.name} updated.',
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     }
@@ -169,10 +170,10 @@ class _ProductCard extends StatelessWidget {
             margin: const EdgeInsets.only(right: 12),
             decoration: BoxDecoration(
               color: product.stock == 0
-                  ? Colors.red
+                  ? AppColors.error
                   : isLowStock
-                      ? Colors.orange
-                      : Colors.green,
+                      ? AppColors.warning
+                      : AppColors.success,
               shape: BoxShape.circle,
             ),
           ),
@@ -212,7 +213,7 @@ class _ProductCard extends StatelessWidget {
                     Text(
                       'Stock: ${product.stock}',
                       style: TextStyle(
-                          color: isLowStock ? Colors.orange : AppTheme.textSecondary,
+                          color: isLowStock ? AppColors.warning : AppTheme.textSecondary,
                           fontSize: 12,
                           fontWeight: isLowStock ? FontWeight.w600 : FontWeight.normal),
                     ),
@@ -220,7 +221,7 @@ class _ProductCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       const Text('OUT',
                           style: TextStyle(
-                              color: Colors.red,
+                              color: AppColors.error,
                               fontSize: 11,
                               fontWeight: FontWeight.bold)),
                     ],
@@ -247,7 +248,7 @@ class _ProductCard extends StatelessWidget {
                 if (canDelete)
                   IconButton(
                     icon: Icon(Icons.delete_outline,
-                        color: Colors.red.withValues(alpha: 0.8), size: 20),
+                        color: AppColors.error, size: 20),
                     onPressed: onDelete,
                     tooltip: 'Delete',
                     constraints:

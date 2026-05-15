@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../service_core/permission/permission_service.dart';
@@ -80,7 +81,7 @@ class HomePage extends StatelessWidget {
                           child: Container(
                             width: 8, height: 8,
                             decoration: BoxDecoration(
-                              color: Colors.green.shade400,
+                              color: AppColors.success,
                               shape: BoxShape.circle,
                             ),
                           ),
