@@ -157,12 +157,12 @@ class _CompletedOrderCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.person_outline_rounded,
-                      color: Colors.green, size: 13),
+                      color: AppColors.success, size: 13),
                   const SizedBox(width: 4),
                   Text(
                     'Completed by: ',
                     style: TextStyle(
-                        color: Colors.green.withValues(alpha: 0.8),
+                        color: AppColors.success,
                         fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),
@@ -179,12 +179,12 @@ class _CompletedOrderCard extends StatelessWidget {
               Row(
                 children: [
                   const Icon(Icons.access_time_rounded,
-                      color: Colors.green, size: 13),
+                      color: AppColors.success, size: 13),
                   const SizedBox(width: 4),
                   Text(
                     'At: ',
                     style: TextStyle(
-                        color: Colors.green.withValues(alpha: 0.8),
+                        color: AppColors.success,
                         fontSize: 12,
                         fontWeight: FontWeight.w600),
                   ),

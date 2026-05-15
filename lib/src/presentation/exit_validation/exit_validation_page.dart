@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -85,13 +86,13 @@ class _IdleView extends StatelessWidget {
               width: 90,
               height: 90,
               decoration: BoxDecoration(
-                color: Colors.teal.withValues(alpha: 0.12),
+                color: AppColors.infoSubtle,
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: Colors.teal.withValues(alpha: 0.4), width: 2),
+                    color: AppColors.infoBorder, width: 2),
               ),
               child: const Icon(Icons.qr_code_scanner_rounded,
-                  color: Colors.teal, size: 44),
+                  color: AppColors.info, size: 44),
             ),
             const SizedBox(height: 24),
             const Text(
@@ -119,7 +120,7 @@ class _IdleView extends StatelessWidget {
                     style:
                         TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
+                  backgroundColor: AppColors.info,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14)),
@@ -158,7 +159,7 @@ class _ScannerView extends StatelessWidget {
             width: 260,
             height: 260,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.teal, width: 3),
+              border: Border.all(color: AppColors.info, width: 3),
               borderRadius: BorderRadius.circular(16),
             ),
           ),
@@ -210,7 +211,7 @@ class _LoadingView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(color: Colors.teal),
+          CircularProgressIndicator(color: AppColors.info),
           SizedBox(height: 16),
           Text('Verifying payment...',
               style:
@@ -244,19 +245,19 @@ class _ApprovedView extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.15),
+              color: AppColors.successSubtle,
               shape: BoxShape.circle,
               border:
-                  Border.all(color: Colors.green.withValues(alpha: 0.5), width: 2.5),
+                  Border.all(color: AppColors.successBorder, width: 2.5),
             ),
             child: const Icon(Icons.check_circle_rounded,
-                color: Colors.green, size: 54),
+                color: AppColors.success, size: 54),
           ),
           const SizedBox(height: 20),
           const Text(
             'Payment Verified',
             style: TextStyle(
-                color: Colors.green,
+                color: AppColors.success,
                 fontSize: 24,
                 fontWeight: FontWeight.bold),
           ),
@@ -286,14 +287,14 @@ class _ApprovedView extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.12),
+                        color: AppColors.successSubtle,
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                            color: Colors.green.withValues(alpha: 0.4)),
+                            color: AppColors.successBorder),
                       ),
                       child: const Text('PAID',
                           style: TextStyle(
-                              color: Colors.green,
+                              color: AppColors.success,
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5)),
@@ -366,7 +367,7 @@ class _ApprovedView extends StatelessWidget {
                   style:
                       TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
+                backgroundColor: AppColors.info,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
@@ -398,18 +399,18 @@ class _RejectedView extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Colors.red.withValues(alpha: 0.12),
+              color: AppColors.errorSubtle,
               shape: BoxShape.circle,
               border:
-                  Border.all(color: Colors.red.withValues(alpha: 0.5), width: 2.5),
+                  Border.all(color: AppColors.errorBorder, width: 2.5),
             ),
-            child: const Icon(Icons.cancel_rounded, color: Colors.red, size: 54),
+            child: const Icon(Icons.cancel_rounded, color: AppColors.error, size: 54),
           ),
           const SizedBox(height: 20),
           const Text(
             'Cannot Exit',
             style: TextStyle(
-                color: Colors.red,
+                color: AppColors.error,
                 fontSize: 24,
                 fontWeight: FontWeight.bold),
           ),
@@ -418,7 +419,7 @@ class _RejectedView extends StatelessWidget {
             child: Row(
               children: [
                 const Icon(Icons.info_outline_rounded,
-                    color: Colors.red, size: 20),
+                    color: AppColors.error, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -441,7 +442,7 @@ class _RejectedView extends StatelessWidget {
                   style:
                       TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
+                backgroundColor: AppColors.info,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
