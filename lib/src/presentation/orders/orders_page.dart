@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -80,24 +81,24 @@ class OrdersPage extends StatelessWidget {
                       _StatChip(
                         label: 'Failed',
                         value: c.failedCount,
-                        color: Colors.red,
+                        color: AppColors.error,
                         icon: Icons.cancel_rounded,
                         onTap: () => Get.to(() => const FailedOrdersPage()),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       _StatChip(
                         label: 'My Done',
                         value: c.myCompletedCount,
-                        color: Colors.green,
+                        color: AppColors.success,
                         icon: Icons.check_circle_rounded,
                         onTap: () =>
                             Get.find<HomeController>().goToTab(2),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       _StatChip(
                         label: 'Completed',
                         value: c.completedCount,
-                        color: Colors.teal,
+                        color: AppColors.info,
                         icon: Icons.done_all_rounded,
                         onTap: () => Get.to(() => const CompletedOrdersPage()),
                       ),
@@ -280,9 +281,9 @@ class _OrderCard extends StatelessWidget {
             Container(
               width: 10,
               height: 10,
-              margin: const EdgeInsets.only(right: 12),
+              margin: const EdgeInsets.only(right: AppSpacing.md),
               decoration: BoxDecoration(
-                color: _statusColor(order.status),
+                color: AppColors.statusColor(order.status),
                 shape: BoxShape.circle,
               ),
             ),
@@ -305,22 +306,22 @@ class _OrderCard extends StatelessWidget {
                       if (order.isFlagged)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                              horizontal: AppSpacing.xs + 2, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                                color: Colors.red.withValues(alpha: 0.4)),
+                            color: AppColors.errorSubtle,
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.sm - 2),
+                            border: Border.all(color: AppColors.errorBorder),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.flag_rounded,
-                                  color: Colors.red, size: 11),
+                                  color: AppColors.error, size: 11),
                               SizedBox(width: 3),
                               Text('Issue',
                                   style: TextStyle(
-                                      color: Colors.red, fontSize: 10)),
+                                      color: AppColors.error, fontSize: 10)),
                             ],
                           ),
                         ),
@@ -370,22 +371,13 @@ class _OrderCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            _StatusBadge(status: order.status),
+            const SizedBox(width: AppSpacing.sm),
+            DsStatusBadge(status: order.status),
           ],
         ),
       ),
     );
   }
-
-  Color _statusColor(String status) => switch (status.toLowerCase()) {
-        'pending'   => Colors.grey.shade400,
-        'preparing' => Colors.orange.shade400,
-        'ready'     => Colors.blue.shade400,
-        'completed' => Colors.green.shade400,
-        'cancelled' => Colors.red.shade400,
-        _           => Colors.orange.shade300,
-      };
 }
 
 // ── Staff Detail Card ─────────────────────────────────────────────────────────
@@ -559,32 +551,3 @@ class _StaffDetailCard extends StatelessWidget {
   }
 }
 
-// ── Status Badge ──────────────────────────────────────────────────────────────
-
-class _StatusBadge extends StatelessWidget {
-  final String status;
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, label) = switch (status.toLowerCase()) {
-      'pending'   => (Colors.grey.shade500, 'Pending'),
-      'preparing' => (Colors.orange.shade600, 'Preparing'),
-      'ready'     => (Colors.blue.shade500, 'Ready'),
-      'completed' => (Colors.green.shade600, 'Completed'),
-      'cancelled' => (Colors.red.shade600, 'Cancelled'),
-      _           => (Colors.orange.shade400, status),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(label,
-          style: TextStyle(
-              color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-    );
-  }
-}

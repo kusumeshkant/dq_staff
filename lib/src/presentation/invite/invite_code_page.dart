@@ -1,3 +1,5 @@
+import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/widgets/themed_background.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'invite_code_controller.dart';
@@ -9,144 +11,144 @@ class InviteCodePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Get.find<InviteCodeController>();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0A1A),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 24),
+    return ThemedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl, vertical: AppSpacing.huge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: AppSpacing.xxl),
 
-              // Icon
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1B5E20).withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.4), width: 2),
+                // Icon
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColors.primarySubtle,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: AppColors.glassWhite20, width: 2),
+                  ),
+                  child: const Icon(Icons.mail_outline_rounded,
+                      color: AppColors.primary, size: 38),
                 ),
-                child: const Icon(Icons.mail_outline_rounded, color: Color(0xFF4CAF50), size: 38),
-              ),
-              const SizedBox(height: 28),
+                const SizedBox(height: AppSpacing.xxxl),
 
-              // Title
-              const Text(
-                'Enter Invite Code',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+                // Title
+                Text(
+                  'Enter Invite Code',
+                  style: AppTypography.titleLarge,
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Your store admin sent you an invite email.\nEnter the code from that email to join your store.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 14, height: 1.5),
-              ),
-              const SizedBox(height: 40),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Your store admin sent you an invite email.\nEnter the code from that email to join your store.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.body
+                      .copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.huge),
 
-              // Code input
-              TextField(
-                controller: c.codeCtrl,
-                textCapitalization: TextCapitalization.characters,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 4,
-                ),
-                decoration: InputDecoration(
-                  hintText: 'DQ-XXXX-XXXX',
-                  hintStyle: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    fontSize: 20,
+                // Code input
+                TextField(
+                  controller: c.codeCtrl,
+                  textCapitalization: TextCapitalization.characters,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.titleMedium.copyWith(
                     letterSpacing: 4,
+                    color: AppColors.textPrimary,
                   ),
-                  filled: true,
-                  fillColor: Colors.white.withValues(alpha: 0.05),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
+                  decoration: InputDecoration(
+                    hintText: 'DQ-XXXX-XXXX',
+                    hintStyle: AppTypography.titleSmall.copyWith(
+                      color: AppColors.textDisabled,
+                      letterSpacing: 4,
+                    ),
+                    filled: true,
+                    fillColor: AppColors.glassWhite07,
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      borderSide: const BorderSide(color: AppColors.glassWhite15),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      borderSide: const BorderSide(color: AppColors.glassWhite15),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                      borderSide:
+                          const BorderSide(color: AppColors.primary, width: 2),
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.15)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: Color(0xFF4CAF50), width: 2),
+                  onSubmitted: (_) => c.submitCode(),
+                ),
+                const SizedBox(height: AppSpacing.md),
+
+                // Error message
+                Obx(() => c.errorMessage.value.isEmpty
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: Text(
+                          c.errorMessage.value,
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodySmall
+                              .copyWith(color: AppColors.error),
+                        ),
+                      )),
+                const SizedBox(height: AppSpacing.md),
+
+                // Submit button
+                SizedBox(
+                  width: double.infinity,
+                  child: Obx(() => DsButton(
+                        label: 'Join Store',
+                        isLoading: c.isLoading.value,
+                        onPressed: c.isLoading.value ? null : c.submitCode,
+                        width: double.infinity,
+                      )),
+                ),
+                const SizedBox(height: AppSpacing.huge),
+
+                // Divider
+                const Divider(color: AppColors.divider),
+                const SizedBox(height: AppSpacing.xl),
+
+                // Help text
+                Text(
+                  "Don't have a code?",
+                  style:
+                      AppTypography.bodySmall.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Ask your store admin to invite you from the DQ Admin app.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.caption
+                      .copyWith(color: AppColors.textDisabled),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
+
+                // Sign out
+                GestureDetector(
+                  onTap: c.signOut,
+                  child: Text(
+                    'Sign out',
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.textDisabled,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
-                onSubmitted: (_) => c.submitCode(),
-              ),
-              const SizedBox(height: 12),
-
-              // Error message
-              Obx(() => c.errorMessage.value.isEmpty
-                  ? const SizedBox.shrink()
-                  : Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        c.errorMessage.value,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Colors.redAccent, fontSize: 13),
-                      ),
-                    )),
-              const SizedBox(height: 12),
-
-              // Submit button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: Obx(() => ElevatedButton(
-                      onPressed: c.isLoading.value ? null : c.submitCode,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4CAF50),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: c.isLoading.value
-                          ? const SizedBox(
-                              width: 22, height: 22,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
-                          : const Text('Join Store',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-                    )),
-              ),
-              const SizedBox(height: 48),
-
-              // Divider
-              Divider(color: Colors.white.withValues(alpha: 0.1)),
-              const SizedBox(height: 20),
-
-              // Help text
-              const Text(
-                "Don't have a code?",
-                style: TextStyle(color: Color(0xFF9CA3AF), fontSize: 13),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'Ask your store admin to invite you from the DQ Admin app.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xFF6B7280), fontSize: 12),
-              ),
-              const SizedBox(height: 24),
-
-              // Sign out
-              GestureDetector(
-                onTap: c.signOut,
-                child: const Text(
-                  'Sign out',
-                  style: TextStyle(color: Color(0xFF6B7280), fontSize: 13, decoration: TextDecoration.underline),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
