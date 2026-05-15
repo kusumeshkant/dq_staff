@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -418,9 +419,9 @@ class _GeneratedCodeCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 20),
           decoration: BoxDecoration(
-            color: Colors.green.shade900.withValues(alpha: 0.4),
+            color: AppColors.successSubtle,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+            border: Border.all(color: AppColors.successBorder),
           ),
           child: Column(
             children: [
@@ -437,7 +438,7 @@ class _GeneratedCodeCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 '${percent.toStringAsFixed(0)}% discount  ·  expires at $_expiry',
-                style: TextStyle(color: Colors.green.shade300, fontSize: 12),
+                style: const TextStyle(color: AppColors.success, fontSize: 12),
               ),
               const SizedBox(height: 4),
               Text('Read this code aloud to the customer.',
@@ -454,8 +455,8 @@ class _GeneratedCodeCard extends StatelessWidget {
                 icon: const Icon(Icons.copy_rounded, size: 16),
                 label: const Text('Copy Code'),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.green.shade400,
-                  side: BorderSide(color: Colors.green.shade400.withValues(alpha: 0.5)),
+                  foregroundColor: AppColors.success,
+                  side: const BorderSide(color: AppColors.successBorder),
                 ),
               ),
             ),
@@ -487,10 +488,10 @@ class _RequestHistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = req['status'] as String? ?? 'pending';
     final statusColor = switch (status) {
-      'approved' => Colors.green.shade400,
-      'rejected' => Colors.red.shade400,
-      'revoked'  => Colors.red.shade300,
-      _          => Colors.orange.shade400,
+      'approved' => AppColors.success,
+      'rejected' => AppColors.error,
+      'revoked'  => AppColors.error,
+      _          => AppColors.warning,
     };
     final typeLabel = switch (req['requestType'] as String? ?? '') {
       'discount'     => 'Discount',

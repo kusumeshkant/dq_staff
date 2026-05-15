@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/themed_background.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -99,20 +100,20 @@ class LoginPage extends StatelessWidget {
                               horizontal: 12, vertical: 10),
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
+                            color: AppColors.errorSubtle,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: Colors.red.withValues(alpha: 0.4)),
+                                color: AppColors.errorBorder),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.error_outline_rounded,
-                                  color: Colors.red, size: 16),
+                                  color: AppColors.error, size: 16),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(c.errorMessage.value,
                                     style: const TextStyle(
-                                        color: Colors.red, fontSize: 13)),
+                                        color: AppColors.error, fontSize: 13)),
                               ),
                             ],
                           ),

@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -101,12 +102,12 @@ class _CompletedOrderCard extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.12),
+                    color: AppColors.successSubtle,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+                    border: Border.all(color: AppColors.successBorder),
                   ),
                   child: const Icon(Icons.check_circle_rounded,
-                      color: Colors.green, size: 18),
+                      color: AppColors.success, size: 18),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
