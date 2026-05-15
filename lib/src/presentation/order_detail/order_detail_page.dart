@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:dq_staff/widgets/themed_background.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class OrderDetailPage extends StatelessWidget {
             Obx(() => c.order.value.status != 'completed' &&
                     c.order.value.status != 'cancelled'
                 ? IconButton(
-                    icon: const Icon(Icons.flag_rounded, color: Colors.orange),
+                    icon: const Icon(Icons.flag_rounded, color: AppColors.warning),
                     tooltip: 'Flag Issue',
                     onPressed: c.showFlagDialog,
                   )
@@ -66,7 +67,7 @@ class OrderDetailPage extends StatelessWidget {
                                   fontSize: 16),
                             ),
                           ),
-                          _StatusBadge(status: o.status),
+                          DsStatusBadge(status: o.status),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -84,14 +85,14 @@ class OrderDetailPage extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: Colors.teal.withValues(alpha: 0.15),
+                                color: AppColors.infoSubtle,
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                    color: Colors.teal.withValues(alpha: 0.4)),
+                                    color: AppColors.infoBorder),
                               ),
                               child: Text(o.storeCode!,
                                   style: const TextStyle(
-                                      color: Colors.teal,
+                                      color: AppColors.info,
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700)),
                             ),
@@ -104,22 +105,22 @@ class OrderDetailPage extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
+                            color: AppColors.errorSubtle,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                                color: Colors.red.withValues(alpha: 0.4)),
+                                color: AppColors.errorBorder),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.flag_rounded,
-                                  color: Colors.red, size: 14),
+                                  color: AppColors.error, size: 14),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   'Issue: ${o.flaggedIssue!.formattedReason}'
                                   '${o.flaggedIssue!.note?.isNotEmpty == true ? ' — ${o.flaggedIssue!.note}' : ''}',
                                   style: const TextStyle(
-                                      color: Colors.red, fontSize: 12),
+                                      color: AppColors.error, fontSize: 12),
                                 ),
                               ),
                             ],
@@ -157,7 +158,7 @@ class OrderDetailPage extends StatelessWidget {
                                             : 0,
                                         backgroundColor: Colors.white12,
                                         color: c.allItemsChecked
-                                            ? Colors.green
+                                            ? AppColors.success
                                             : AppTheme.primary,
                                         minHeight: 6,
                                       ),
@@ -191,11 +192,11 @@ class OrderDetailPage extends StatelessWidget {
                                         height: 22,
                                         decoration: BoxDecoration(
                                           color: checked
-                                              ? Colors.green
+                                              ? AppColors.success
                                               : Colors.transparent,
                                           border: Border.all(
                                             color: checked
-                                                ? Colors.green
+                                                ? AppColors.success
                                                 : AppTheme.cardBorder,
                                             width: 2,
                                           ),
@@ -544,18 +545,18 @@ class OrderDetailPage extends StatelessWidget {
       };
 
   Color _actionColor(String action) => switch (action) {
-        'started_preparing' => Colors.orange,
-        'marked_ready' => Colors.blue,
-        'completed' => Colors.green,
-        'cancelled' => Colors.red,
-        'flagged_issue' => Colors.red,
-        _ => Colors.grey,
+        'started_preparing' => AppColors.warning,
+        'marked_ready' => AppColors.info,
+        'completed' => AppColors.success,
+        'cancelled' => AppColors.error,
+        'flagged_issue' => AppColors.error,
+        _ => AppColors.neutral,
       };
 
   Color _actionButtonColor(String next) => switch (next) {
-        'preparing' => Colors.orange.shade700,
-        'ready' => Colors.blue.shade700,
-        'completed' => Colors.green.shade700,
+        'preparing' => AppColors.warning,
+        'ready' => AppColors.info,
+        'completed' => AppColors.success,
         _ => AppTheme.primary,
       };
 
@@ -690,9 +691,9 @@ class _TimelineStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = switch (step.state) {
-      _StepState.done => Colors.green,
+      _StepState.done => AppColors.success,
       _StepState.active => AppTheme.primary,
-      _StepState.cancelled => Colors.red,
+      _StepState.cancelled => AppColors.error,
       _StepState.pending => Colors.white24,
     };
 
@@ -719,7 +720,7 @@ class _TimelineStep extends StatelessWidget {
                       width: 2,
                       margin: const EdgeInsets.symmetric(vertical: 2),
                       color: step.state == _StepState.done
-                          ? Colors.green.withValues(alpha: 0.4)
+                          ? AppColors.successBorder
                           : Colors.white12,
                     ),
                   ),
@@ -795,14 +796,14 @@ class _CompletionBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.green.withValues(alpha: 0.12),
+        color: AppColors.successSubtle,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.successBorder),
       ),
       child: Row(
         children: [
           const Icon(Icons.check_circle_rounded,
-              color: Colors.green, size: 28),
+              color: AppColors.success, size: 28),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -810,21 +811,20 @@ class _CompletionBanner extends StatelessWidget {
               children: [
                 const Text('Order Completed',
                     style: TextStyle(
-                        color: Colors.green,
+                        color: AppColors.success,
                         fontWeight: FontWeight.bold,
                         fontSize: 14)),
                 if (completedAction?.staffName != null)
                   Text(
                     'by ${completedAction!.staffName}',
                     style: const TextStyle(
-                        color: Colors.green, fontSize: 12),
+                        color: AppColors.success, fontSize: 12),
                   ),
                 if (completedAction?.formattedTime != null)
                   Text(
                     completedAction!.formattedTime,
-                    style: TextStyle(
-                        color: Colors.green.withValues(alpha: 0.7),
-                        fontSize: 11),
+                    style: const TextStyle(
+                        color: AppColors.success, fontSize: 11),
                   ),
               ],
             ),
@@ -844,17 +844,17 @@ class _CancellationBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.red.withValues(alpha: 0.1),
+        color: AppColors.errorSubtle,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.errorBorder),
       ),
       child: const Row(
         children: [
-          Icon(Icons.cancel_rounded, color: Colors.red, size: 28),
+          Icon(Icons.cancel_rounded, color: AppColors.error, size: 28),
           SizedBox(width: 12),
           Text('Order Cancelled',
               style: TextStyle(
-                  color: Colors.red,
+                  color: AppColors.error,
                   fontWeight: FontWeight.bold,
                   fontSize: 14)),
         ],
@@ -863,32 +863,3 @@ class _CancellationBanner extends StatelessWidget {
   }
 }
 
-// ── Status Badge ──────────────────────────────────────────────────────────────
-
-class _StatusBadge extends StatelessWidget {
-  final String status;
-  const _StatusBadge({required this.status});
-
-  @override
-  Widget build(BuildContext context) {
-    final (color, label) = switch (status.toLowerCase()) {
-      'pending' => (Colors.grey.shade500, 'Pending'),
-      'preparing' => (Colors.orange.shade600, 'Preparing'),
-      'ready' => (Colors.blue.shade500, 'Ready'),
-      'completed' => (Colors.green.shade600, 'Completed'),
-      'cancelled' => (Colors.red.shade600, 'Cancelled'),
-      _ => (Colors.orange.shade400, status),
-    };
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.5)),
-      ),
-      child: Text(label,
-          style: TextStyle(
-              color: color, fontSize: 11, fontWeight: FontWeight.w600)),
-    );
-  }
-}

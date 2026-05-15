@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/usecase/get_order_by_id_usecase.dart';
@@ -22,7 +23,7 @@ class ScannerController extends GetxController {
         Get.snackbar(
           'Not Found',
           'No order found for this QR code.',
-          backgroundColor: Colors.orange,
+          backgroundColor: AppColors.warning,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
         );
@@ -40,7 +41,7 @@ class ScannerController extends GetxController {
       );
     } catch (e) {
       Get.snackbar('Error', 'Failed to look up order.',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       await Future.delayed(const Duration(seconds: 2));

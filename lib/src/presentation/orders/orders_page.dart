@@ -499,15 +499,15 @@ class _StaffDetailCard extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.teal.withValues(alpha: 0.15),
+                              color: AppColors.infoSubtle,
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(
-                                  color: Colors.teal.withValues(alpha: 0.4)),
+                                  color: AppColors.infoBorder),
                             ),
                             child: Text(
                               store!.storeCode!,
                               style: const TextStyle(
-                                  color: Colors.teal,
+                                  color: AppColors.info,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700),
                             ),

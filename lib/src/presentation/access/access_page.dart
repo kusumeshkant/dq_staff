@@ -354,7 +354,7 @@ class _PermRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = granted ? Colors.green.shade400 : Colors.white30;
+    final color = granted ? AppColors.success : Colors.white30;
     return Row(
       children: [
         Icon(icon, color: color, size: 18),

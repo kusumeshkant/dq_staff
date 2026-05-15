@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -65,14 +66,14 @@ class AccessController extends GetxController {
 
     if (pct == null || pct <= 0) {
       Get.snackbar('Invalid', 'Enter a valid discount percentage.',
-          backgroundColor: Colors.orange, colorText: Colors.white,
+          backgroundColor: AppColors.warning, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
     if (pct > max) {
       Get.snackbar('Limit Exceeded',
           'Your max approved discount is ${max.toStringAsFixed(0)}%.',
-          backgroundColor: Colors.orange, colorText: Colors.white,
+          backgroundColor: AppColors.warning, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
@@ -87,7 +88,7 @@ class AccessController extends GetxController {
       discountPctCtrl.clear();
     } catch (e) {
       Get.snackbar('Error', e.toString().replaceAll('Exception: ', ''),
-          backgroundColor: Colors.red, colorText: Colors.white,
+          backgroundColor: AppColors.error, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       isGenerating.value = false;
@@ -99,7 +100,7 @@ class AccessController extends GetxController {
     if (code == null) return;
     Clipboard.setData(ClipboardData(text: code));
     Get.snackbar('Copied', 'Code "$code" copied to clipboard.',
-        backgroundColor: Colors.green, colorText: Colors.white,
+        backgroundColor: AppColors.success, colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2));
   }
@@ -120,7 +121,7 @@ class AccessController extends GetxController {
     final reason = reasonCtrl.text.trim();
     if (reason.isEmpty) {
       Get.snackbar('Missing', 'Please provide a reason for your request.',
-          backgroundColor: Colors.orange, colorText: Colors.white,
+          backgroundColor: AppColors.warning, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
@@ -131,7 +132,7 @@ class AccessController extends GetxController {
       final pct = double.tryParse(discountReqPctCtrl.text.trim());
       if (pct == null || pct <= 0) {
         Get.snackbar('Invalid', 'Enter the max discount % you are requesting.',
-            backgroundColor: Colors.orange, colorText: Colors.white,
+            backgroundColor: AppColors.warning, colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         return;
       }
@@ -139,7 +140,7 @@ class AccessController extends GetxController {
 
     if (type == 'product_edit' && selectedProductPerms.isEmpty) {
       Get.snackbar('Missing', 'Select at least one product permission.',
-          backgroundColor: Colors.orange, colorText: Colors.white,
+          backgroundColor: AppColors.warning, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
@@ -161,12 +162,12 @@ class AccessController extends GetxController {
       discountReqPctCtrl.clear();
       selectedProductPerms.clear();
       Get.snackbar('Submitted', 'Request sent. Your admin will review it shortly.',
-          backgroundColor: Colors.green, colorText: Colors.white,
+          backgroundColor: AppColors.success, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       await loadMyRequests();
     } catch (e) {
       Get.snackbar('Error', e.toString().replaceAll('Exception: ', ''),
-          backgroundColor: Colors.red, colorText: Colors.white,
+          backgroundColor: AppColors.error, colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
       isSubmitting.value = false;

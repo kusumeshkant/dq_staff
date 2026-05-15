@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
@@ -70,7 +71,7 @@ class ProductsController extends GetxController {
       products.assignAll(result);
     } catch (e) {
       Get.snackbar('Error', 'Failed to load products: ${e.toString()}',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -107,7 +108,7 @@ class ProductsController extends GetxController {
           TextButton(
             onPressed: () => Get.back(result: true),
             child: const Text('Delete',
-                style: TextStyle(color: Colors.red)),
+                style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -119,12 +120,12 @@ class ProductsController extends GetxController {
       await deleteProductUseCase.execute(product.id);
       products.removeWhere((p) => p.id == product.id);
       Get.snackbar('Deleted', '${product.name} removed from inventory.',
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.success,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete: ${e.toString()}',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     }

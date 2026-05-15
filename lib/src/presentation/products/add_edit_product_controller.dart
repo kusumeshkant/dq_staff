@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
@@ -72,7 +73,7 @@ class AddEditProductController extends GetxController {
       if (!isEditing && !ps.canAddProduct.value) {
         Get.snackbar('No Permission',
             'You do not have permission to add products. Request access in the Access tab.',
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: AppColors.error,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4));
@@ -81,7 +82,7 @@ class AddEditProductController extends GetxController {
       if (isEditing && !ps.canEditProductInfo.value) {
         Get.snackbar('No Permission',
             'You do not have permission to edit products. Request access in the Access tab.',
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: AppColors.error,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
             duration: const Duration(seconds: 4));
@@ -93,14 +94,14 @@ class AddEditProductController extends GetxController {
 
     if (!isEditing && barcode.isEmpty) {
       Get.snackbar('Missing', 'Barcode is required.',
-          backgroundColor: Colors.orange,
+          backgroundColor: AppColors.warning,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
     }
     if (name.isEmpty) {
       Get.snackbar('Missing', 'Product name is required.',
-          backgroundColor: Colors.orange,
+          backgroundColor: AppColors.warning,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
       return;
@@ -113,7 +114,7 @@ class AddEditProductController extends GetxController {
       final parsedPrice = double.tryParse(priceText);
       if (parsedPrice == null || parsedPrice < 0) {
         Get.snackbar('Invalid', 'Enter a valid price.',
-            backgroundColor: Colors.orange,
+            backgroundColor: AppColors.warning,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         return;
@@ -122,7 +123,7 @@ class AddEditProductController extends GetxController {
       final parsedStock = int.tryParse(stockText);
       if (parsedStock == null || parsedStock < 0) {
         Get.snackbar('Invalid', 'Enter a valid stock quantity.',
-            backgroundColor: Colors.orange,
+            backgroundColor: AppColors.warning,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         return;
@@ -162,7 +163,7 @@ class AddEditProductController extends GetxController {
       Get.back(result: result);
     } catch (e) {
       Get.snackbar('Error', e.toString(),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
