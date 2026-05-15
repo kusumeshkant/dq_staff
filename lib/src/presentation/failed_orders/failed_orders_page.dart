@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,7 +38,7 @@ class FailedOrdersPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.check_circle_outline_rounded,
-                    size: 64, color: Colors.green.withValues(alpha: 0.5)),
+                    size: 64, color: AppColors.successBorder),
                 const SizedBox(height: 16),
                 const Text('No failed orders',
                     style:
@@ -85,7 +86,7 @@ class _FailedOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFlagged = order.isFlagged;
-    final color = isFlagged ? Colors.orange : Colors.red;
+    final color = isFlagged ? AppColors.warning : AppColors.error;
 
     // Last cancellation/flag action
     final responsibleAction = order.staffActions
@@ -176,7 +177,7 @@ class _FailedOrderCard extends StatelessWidget {
               const SizedBox(height: 6),
               _InfoRow(
                 icon: Icons.info_outline_rounded,
-                color: Colors.orange,
+                color: AppColors.warning,
                 label: 'Reason',
                 value: order.flaggedIssue!.formattedReason,
               ),
@@ -185,7 +186,7 @@ class _FailedOrderCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 _InfoRow(
                   icon: Icons.notes_rounded,
-                  color: Colors.orange,
+                  color: AppColors.warning,
                   label: 'Note',
                   value: order.flaggedIssue!.note!,
                 ),
@@ -197,7 +198,7 @@ class _FailedOrderCard extends StatelessWidget {
               const SizedBox(height: 6),
               _InfoRow(
                 icon: Icons.notes_rounded,
-                color: Colors.red,
+                color: AppColors.error,
                 label: 'Reason',
                 value: cancelNote,
               ),
@@ -208,14 +209,14 @@ class _FailedOrderCard extends StatelessWidget {
               const SizedBox(height: 6),
               _InfoRow(
                 icon: Icons.person_outline_rounded,
-                color: Colors.blueGrey,
+                color: AppColors.neutral,
                 label: 'Staff',
                 value: responsibleAction.staffName ?? 'Unknown',
               ),
               const SizedBox(height: 4),
               _InfoRow(
                 icon: Icons.access_time_rounded,
-                color: Colors.blueGrey,
+                color: AppColors.neutral,
                 label: 'At',
                 value: responsibleAction.formattedTime,
               ),
@@ -236,7 +237,7 @@ class _FailTypeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isFlagged ? Colors.orange : Colors.red;
+    final color = isFlagged ? AppColors.warning : AppColors.error;
     final label = isFlagged ? 'Flagged' : 'Cancelled';
     final icon = isFlagged ? Icons.flag_rounded : Icons.cancel_rounded;
 

@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -69,7 +70,7 @@ class MyOrdersPage extends StatelessWidget {
                 child: Row(
                   children: [
                     const Icon(Icons.check_circle_rounded,
-                        color: Colors.green, size: 28),
+                        color: AppColors.success, size: 28),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,13 +150,13 @@ class _MyOrderCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.12),
+                color: AppColors.successSubtle,
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: Colors.green.withValues(alpha: 0.4)),
+                    color: AppColors.successBorder),
               ),
               child: const Icon(Icons.check_rounded,
-                  color: Colors.green, size: 20),
+                  color: AppColors.success, size: 20),
             ),
             const SizedBox(width: 12),
 
@@ -178,15 +179,14 @@ class _MyOrderCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: Colors.teal.withValues(alpha: 0.15),
+                            color: AppColors.infoSubtle,
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                                color:
-                                    Colors.teal.withValues(alpha: 0.4)),
+                                color: AppColors.infoBorder),
                           ),
                           child: Text(order.storeCode!,
                               style: const TextStyle(
-                                  color: Colors.teal,
+                                  color: AppColors.info,
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700)),
                         ),

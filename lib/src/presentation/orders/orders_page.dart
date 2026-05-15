@@ -447,12 +447,12 @@ class _StaffDetailCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: (isAdmin ? Colors.purple : AppTheme.primary)
+                            color: (isAdmin ? AppColors.primary : AppTheme.primary)
                                 .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color:
-                                  (isAdmin ? Colors.purple : AppTheme.primary)
+                                  (isAdmin ? AppColors.primary : AppTheme.primary)
                                       .withValues(alpha: 0.5),
                             ),
                           ),
@@ -460,7 +460,7 @@ class _StaffDetailCard extends StatelessWidget {
                             isAdmin ? 'Admin' : 'Staff',
                             style: TextStyle(
                               color:
-                                  isAdmin ? Colors.purple : AppTheme.primary,
+                                  isAdmin ? AppColors.primary : AppTheme.primary,
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.5,

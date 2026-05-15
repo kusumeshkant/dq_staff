@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/order_entity.dart';
@@ -83,7 +84,7 @@ class OrdersController extends GetxController {
       _updateDerivedLists();
     } catch (e) {
       Get.snackbar('Error', 'Failed to load orders: ${e.toString()}',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
@@ -129,7 +130,7 @@ class OrdersController extends GetxController {
       final order = await getOrderByIdUseCase.execute(orderId);
       if (order == null) {
         Get.snackbar('Not Found', 'No order found with that ID.',
-            backgroundColor: Colors.orange,
+            backgroundColor: AppColors.warning,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM);
         return;
@@ -137,7 +138,7 @@ class OrdersController extends GetxController {
       _openOrderDetail(order);
     } catch (e) {
       Get.snackbar('Error', 'Order lookup failed.',
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM);
     } finally {
