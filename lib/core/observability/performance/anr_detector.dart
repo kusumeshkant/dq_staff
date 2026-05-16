@@ -8,13 +8,20 @@ import '../analytics_service.dart';
 import '../crashlytics_service.dart';
 
 const _kStallFrameThreshold = 8;
+const _kSevereFrameThreshold = _kStallFrameThreshold * 3; // 24
 const _kJankyFrameMs = 32;
 
 /// Detects UI stalls — sustained sequences of janky frames.
+///
+/// Reports exactly one breadcrumb + analytics at the warning threshold (8 frames)
+/// and one additional pair at the severe threshold (24 frames). Resets all state
+/// when frames recover, so subsequent stall episodes are detected independently.
+///
 /// No-ops in dev builds.
 class AnrDetector extends GetxService {
   int _consecutiveJankyFrames = 0;
-  bool _stallReportedThisSession = false;
+  bool _warningSent = false;
+  bool _severeSent = false;
 
   @override
   void onInit() {
@@ -38,26 +45,37 @@ class AnrDetector extends GetxService {
         _consecutiveJankyFrames++;
         _checkForStall(totalMs);
       } else {
-        _consecutiveJankyFrames = 0;
+        _onRecovery();
       }
     }
   }
 
   void _checkForStall(int lastFrameMs) {
-    if (_consecutiveJankyFrames < _kStallFrameThreshold) return;
-    final severity = _consecutiveJankyFrames >= _kStallFrameThreshold * 3
-        ? 'severe'
-        : 'warning';
-    _breadcrumb(
-      'ui_stall[$severity]: '
-      '${_consecutiveJankyFrames} consecutive janky frames, '
-      'last=${lastFrameMs}ms',
-    );
-    if (!_stallReportedThisSession ||
-        _consecutiveJankyFrames >= _kStallFrameThreshold * 3) {
-      _stallReportedThisSession = true;
-      _logStallEvent(severity);
+    if (_consecutiveJankyFrames == _kStallFrameThreshold && !_warningSent) {
+      _warningSent = true;
+      _breadcrumb(
+        'ui_stall[warning]: $_consecutiveJankyFrames consecutive janky frames '
+        'last=${lastFrameMs}ms',
+      );
+      _logStallEvent('warning');
     }
+    if (_consecutiveJankyFrames == _kSevereFrameThreshold && !_severeSent) {
+      _severeSent = true;
+      _breadcrumb(
+        'ui_stall[severe]: $_consecutiveJankyFrames consecutive janky frames '
+        'last=${lastFrameMs}ms',
+      );
+      _logStallEvent('severe');
+    }
+  }
+
+  void _onRecovery() {
+    if (_consecutiveJankyFrames >= _kStallFrameThreshold) {
+      _breadcrumb('ui_stall_end: recovered after $_consecutiveJankyFrames frames');
+    }
+    _consecutiveJankyFrames = 0;
+    _warningSent = false;
+    _severeSent = false;
   }
 
   void _breadcrumb(String message) {
@@ -71,8 +89,8 @@ class AnrDetector extends GetxService {
     Get.find<AnalyticsService>().logEvent(
       AnalyticsEvents.anrDetected,
       parameters: <String, Object>{
-        'severity': severity,
-        'consecutive_janky_frames': _consecutiveJankyFrames,
+        AnalyticsParams.severity: severity,
+        AnalyticsParams.consecutiveJankyFrames: _consecutiveJankyFrames,
         AnalyticsParams.flavor: AppConfig.flavor,
       },
     );

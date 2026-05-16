@@ -50,13 +50,13 @@ class AppLogger {
     final msgs = errors.map((e) => e.message).join('; ');
     _log(level: 1000, color: _red, channel: 'GQL:ERR',
         msg: '└─ GQL ERROR [$operation]  $msgs');
-    _breadcrumb('gql_error: $operation $msgs', category: CrashCategory.api);
+    _breadcrumb('gql_error: $operation $msgs');
   }
 
   static void networkError(String operation, dynamic exception) {
     _log(level: 1000, color: _red, channel: 'GQL:ERR',
         msg: '└─ NET ERROR [$operation]  $exception');
-    _breadcrumb('net_error: $operation', category: CrashCategory.network);
+    _breadcrumb('net_error: $operation');
   }
 
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -110,7 +110,7 @@ class AppLogger {
         name: channel, level: level, error: error, stackTrace: stackTrace);
   }
 
-  static void _breadcrumb(String message, {CrashCategory? category}) {
+  static void _breadcrumb(String message) {
     if (!Get.isRegistered<CrashlyticsService>()) return;
     Get.find<CrashlyticsService>().log(message);
   }

@@ -57,6 +57,8 @@ abstract final class AnalyticsParams {
   static const String totalFrameCount = 'total_frames';
   static const String maxFrameMs      = 'max_frame_ms';
   static const String avgFrameMs      = 'avg_frame_ms';
-  static const String startupMs       = 'startup_ms';
-  static const String sessionId       = 'session_id';
+  static const String startupMs              = 'startup_ms';
+  static const String sessionId              = 'session_id';
+  static const String severity               = 'severity';
+  static const String consecutiveJankyFrames = 'consecutive_janky_frames';
 }

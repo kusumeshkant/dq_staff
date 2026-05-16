@@ -47,9 +47,9 @@ class GraphQLObservabilityLink extends Link {
         } else {
           _log('gql_ok: $operation');
         }
-        await trace?.stop();
         yield response;
       }
+      await trace?.stop();
     } catch (e, st) {
       await trace?.putAttribute('error', 'true');
       await trace?.stop();

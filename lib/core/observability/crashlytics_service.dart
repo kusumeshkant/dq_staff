@@ -76,6 +76,6 @@ class CrashlyticsService extends GetxService {
       return;
     }
     await _crashlytics.setCustomKey('crash_category', CrashCategory.widget.label);
-    await _crashlytics.recordFlutterFatalError(details);
+    await _crashlytics.recordFlutterError(details);
   }
 }
