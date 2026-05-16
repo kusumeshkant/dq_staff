@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../src/theme/app_theme.dart';
 
 class ThemedBackground extends StatelessWidget {
   final Widget child;

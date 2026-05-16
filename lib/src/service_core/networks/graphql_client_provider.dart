@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import '../../constants/app_config.dart';
 import '../auth/session_manager.dart';
+import 'graphql_observability_link.dart';
 
 class GraphQLClientProvider {
   static GraphQLClient? _client;
@@ -70,8 +71,31 @@ class GraphQLClientProvider {
       },
     );
 
+    final link = GraphQLObservabilityLink()
+        .concat(GraphQLLoggingLink())
+        .concat(errorLink.concat(authLink.concat(httpLink)));
+
     return GraphQLClient(
-      link: errorLink.concat(authLink.concat(httpLink)),
+      link: link,
+      cache: GraphQLCache(store: InMemoryStore()),
+    );
+  }
+
+  // A minimal client with no ErrorLink — used during the login flow so that
+  // an UNAUTHENTICATED backend response does not trigger _expireSession()
+  // while the user is actively trying to sign in.
+  static GraphQLClient buildLoginClient() {
+    final httpLink = HttpLink(AppConfig.graphqlEndpoint);
+    final authLink = AuthLink(
+      getToken: () async {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user == null) return null;
+        final token = await user.getIdToken();
+        return token != null ? 'Bearer $token' : null;
+      },
+    );
+    return GraphQLClient(
+      link: authLink.concat(httpLink),
       cache: GraphQLCache(store: InMemoryStore()),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
+import 'package:dq_staff/core/observability/observability.dart';
 import 'package:dq_staff/src/data/datasources/remote/auth_remote_ds.dart';
 import 'package:dq_staff/src/data/repo_impl/auth_repository_impl.dart';
 import 'package:dq_staff/src/domain/entity/user_entity.dart';
@@ -25,25 +26,18 @@ import 'firebase_options.dart';
 
 void main() {
   // runZonedGuarded catches all uncaught async errors in the app's zone.
-  // Without this, any throw before runApp() produces a silent white screen.
   runZonedGuarded(_bootstrap, (error, stack) {
+    if (Get.isRegistered<CrashlyticsService>()) {
+      Get.find<CrashlyticsService>().recordError(
+        error, stack, category: CrashCategory.unknown, fatal: true,
+      );
+    }
     debugPrint('\n=== [DQ-Staff] UNCAUGHT ZONE ERROR ===\n$error\n$stack\n=====================================\n');
   });
 }
 
 Future<void> _bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Surface Flutter framework errors and platform dispatcher errors so a
-  // white-screen startup crash is always visible in DevTools console.
-  FlutterError.onError = (FlutterErrorDetails details) {
-    FlutterError.presentError(details);
-    debugPrint('\n=== [DQ-Staff] FLUTTER ERROR ===\n${details.exceptionAsString()}\n${details.stack}\n================================\n');
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    debugPrint('\n=== [DQ-Staff] PLATFORM ERROR ===\n$error\n$stack\n=================================\n');
-    return false;
-  };
 
   // ── Step 1: Firebase ────────────────────────────────────────────────────────
   debugPrint('[DQ-Staff] startup: Firebase.initializeApp...');
@@ -62,6 +56,27 @@ Future<void> _bootstrap() async {
     debugPrint('[DQ-Staff] startup: Firebase FAILED: $e\n$st');
     rethrow; // fatal — app cannot function without Firebase
   }
+
+  // ── Step 1b: Observability services ─────────────────────────────────────────
+  // Must run immediately after Firebase so error handlers can record crashes.
+  final crashlytics = Get.put(CrashlyticsService(), permanent: true);
+  Get.put(AnalyticsService(), permanent: true);
+  Get.put(PerformanceService(), permanent: true);
+  Get.put(BreadcrumbService(), permanent: true);
+  Get.put(ReleaseHealthService(), permanent: true);
+  Get.put(FramePerformanceTracker(), permanent: true);
+  Get.put(AnrDetector(), permanent: true);
+
+  // Wire global error handlers to Crashlytics.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    crashlytics.recordFlutterError(details);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    crashlytics.recordError(error, stack,
+        category: CrashCategory.rendering, fatal: true);
+    return true;
+  };
 
   // ── Step 2: Platform UI (non-web only) ──────────────────────────────────────
   if (!kIsWeb) {
@@ -199,6 +214,7 @@ class DQStaffApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
       initialBinding: binding,
+      navigatorObservers: [AnalyticsNavigatorObserver()],
       home: home,
     );
   }
