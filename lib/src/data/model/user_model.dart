@@ -18,8 +18,11 @@ class UserModel extends UserEntity {
         : [json['role'] as String? ?? 'customer'];
 
     String role = 'customer';
-    if (roles.contains('admin')) role = 'admin';
-    else if (roles.contains('staff')) role = 'staff';
+    if (roles.contains('admin')) {
+      role = 'admin';
+    } else if (roles.contains('staff')) {
+      role = 'staff';
+    }
 
     return UserModel(
       id: json['id'] as String,
