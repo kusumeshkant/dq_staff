@@ -1,0 +1,19 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DQ Staff  |  v1.0.2+20  |  UAT BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪  UAT BUILD — For testers only.
+
+🔧 Environment
+  • Backend: UAT server (Azure Container Apps)
+  • Flavor: uat  |  App ID: com.example.dq_staff.uat
+  • Installs alongside Dev and Prod apps
+
+📋 What to Test
+  • Order queue management
+  • Token status updates (pending → ready → collected)
+  • Push notifications on order changes
+  • Staff login and role access
+  • Exit QR scan validation
+
+⚠️  Report issues to kushumeshkant2013@gmail.com before prod sign-off.

@@ -1,0 +1,18 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DQ Staff  |  v1.0.2+20  |  PHASE 2A — DEV BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  This build is for internal testing only.
+    DO NOT share outside the team.
+
+🔗 Backend: DEV (https://de-backend-iota.vercel.app/graphql)
+
+━━━ WHAT'S NEW IN THIS BUILD ━━━
+
+  • Internal cleanup: removed unused subscription code
+  • No visible changes for staff
+
+━━━ WHAT TO TEST ━━━
+
+  □ Login and order management works normally
+  □ Exit QR validation unchanged

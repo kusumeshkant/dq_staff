@@ -1,0 +1,37 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DQ Staff  |  v1.0.2+19  |  PHASE 2A — DEV BUILD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  This build is for internal testing only.
+    DO NOT share outside the team.
+
+🔗 Backend: DEV (https://de-backend-iota.vercel.app/graphql)
+
+━━━ WHAT'S NEW IN THIS BUILD ━━━
+
+Phase 2A — Subscription Engine (Backend Only, No UI Change)
+
+  • SubscriptionManager service wired at app startup (loads subscription
+    state silently in the background — no visible change to staff)
+  • Backend: auto-assigns 14-day trial to every new store on creation
+  • Backend: subscription kill switch in place (SUBSCRIPTION_ENABLED env var)
+
+━━━ WHAT TO TEST ━━━
+
+  Phase 2A:
+  □ App startup completes without errors or delays
+  □ No subscription-related crash or error dialog on cold start
+  □ Logout and re-login — app resumes correctly
+
+  Phase 1 regression (must still work):
+  □ Login and store selection
+  □ Order list loads correctly
+  □ Order status update (pending → processing → completed)
+  □ Flag order issue
+  □ Product scan via barcode
+  □ Staff profile screen
+
+━━━ KNOWN SCOPE ━━━
+
+  - No subscription UI in dq_staff — all changes are internal service wiring
+  - No features are gated or blocked in this build

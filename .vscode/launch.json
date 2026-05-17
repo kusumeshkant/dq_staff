@@ -1,0 +1,68 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "DQ Staff — Dev (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "dev",
+        "--dart-define=APP_FLAVOR=dev"
+      ]
+    },
+    {
+      "name": "DQ Staff — UAT (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "uat",
+        "--dart-define=APP_FLAVOR=uat"
+      ]
+    },
+    {
+      "name": "DQ Staff — Prod (Debug)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "prod",
+        "--dart-define=APP_FLAVOR=prod"
+      ]
+    },
+    {
+      "name": "DQ Staff — Dev (Release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "dev",
+        "--dart-define=APP_FLAVOR=dev"
+      ]
+    },
+    {
+      "name": "DQ Staff — UAT (Release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "uat",
+        "--dart-define=APP_FLAVOR=uat"
+      ]
+    },
+    {
+      "name": "DQ Staff — Prod (Release)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release",
+      "program": "lib/main.dart",
+      "args": [
+        "--flavor", "prod",
+        "--dart-define=APP_FLAVOR=prod"
+      ]
+    }
+  ]
+}
