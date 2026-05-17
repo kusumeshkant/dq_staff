@@ -1,4 +1,5 @@
 import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -61,14 +62,17 @@ class OrdersPage extends StatelessWidget {
           )?.then((_) => c.loadOrders()),
           child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
         ),
-        body: Column(
+        body: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: context.maxContentWidth),
+            child: Column(
           children: [
             // Staff detail card
             _StaffDetailCard(session: session),
 
             // Stats row
             Obx(() => Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: EdgeInsets.fromLTRB(context.pagePadding, 8, context.pagePadding, 0),
                   child: Row(
                     children: [
                       _StatChip(
@@ -109,7 +113,7 @@ class OrdersPage extends StatelessWidget {
 
             // Search bar
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              padding: EdgeInsets.fromLTRB(context.pagePadding, 8, context.pagePadding, 0),
               child: Row(
                 children: [
                   Expanded(
@@ -186,7 +190,8 @@ class OrdersPage extends StatelessWidget {
                   onRefresh: c.loadOrders,
                   color: AppTheme.primary,
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+                    padding: EdgeInsets.fromLTRB(
+                        context.pagePadding, 0, context.pagePadding, 100),
                     itemCount: c.activeOrders.length,
                     itemBuilder: (_, i) => _OrderCard(
                       order: c.activeOrders[i],
@@ -197,6 +202,8 @@ class OrdersPage extends StatelessWidget {
               }),
             ),
           ],
+            ),
+          ),
         ),
     );
   }
