@@ -1,11 +1,11 @@
 /// DQ Staff Design System — barrel export.
 ///
 /// Import this single file to access all design tokens and components:
-///   import 'package:dq_staff/design_system/design_system.dart';
-///
-/// Then use:
-///   AppColors.primary, AppSpacing.lg, AppTypography.titleMedium
-///   DsGlassCard(child: ...), DsStatusBadge(status: order.status)
+/// ```dart
+/// import 'package:dq_staff/design_system/design_system.dart';
+/// ```
+/// Then use: `AppColors.primary`, `AppSpacing.lg`, `AppTypography.titleMedium`
+library;
 
 // Tokens
 export 'tokens/app_colors.dart';

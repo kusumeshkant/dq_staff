@@ -1,5 +1,4 @@
 import 'package:dq_staff/design_system/design_system.dart';
-import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../service_core/permission/permission_service.dart';
