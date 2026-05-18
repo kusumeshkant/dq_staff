@@ -1,4 +1,5 @@
 import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,92 +27,99 @@ class MyOrdersPage extends StatelessWidget {
                   : 'My Orders',
             )),
       ),
-      body: Obx(() {
-        final myOrders = ordersController.myCompletedOrders;
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: context.maxContentWidth),
+          child: Obx(() {
+            final myOrders = ordersController.myCompletedOrders;
 
-        if (ordersController.isLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary));
-        }
+            if (ordersController.isLoading.value) {
+              return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary));
+            }
 
-        if (myOrders.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.assignment_turned_in_outlined,
-                    size: 64,
-                    color: AppTheme.textSecondary.withValues(alpha: 0.4)),
-                const SizedBox(height: 16),
-                const Text(
-                  'No completed orders yet',
-                  style: TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 15),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Orders you complete will appear here',
-                  style: TextStyle(
-                      color: AppTheme.textSecondary, fontSize: 12),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return Column(
-          children: [
-            // Summary header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: AppGlassCard(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
-                child: Row(
+            if (myOrders.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle_rounded,
-                        color: AppColors.success, size: 28),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${myOrders.length} Order${myOrders.length != 1 ? 's' : ''} Completed',
-                          style: const TextStyle(
-                              color: AppTheme.textPrimary,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        ),
-                        Text(
-                          'Total: ₹${myOrders.fold(0.0, (sum, o) => sum + o.grandTotal).toStringAsFixed(0)}',
-                          style: const TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 12),
-                        ),
-                      ],
+                    Icon(Icons.assignment_turned_in_outlined,
+                        size: 64,
+                        color: AppTheme.textSecondary.withValues(alpha: 0.4)),
+                    const SizedBox(height: AppSpacing.lg),
+                    const Text(
+                      'No completed orders yet',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 15),
+                    ),
+                    const SizedBox(height: AppSpacing.xs + 2),
+                    const Text(
+                      'Orders you complete will appear here',
+                      style: TextStyle(
+                          color: AppTheme.textSecondary, fontSize: 12),
                     ),
                   ],
                 ),
-              ),
-            ),
+              );
+            }
 
-            // Orders list
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: ordersController.loadOrders,
-                color: AppTheme.primary,
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                  itemCount: myOrders.length,
-                  itemBuilder: (_, i) => _MyOrderCard(
-                    order: myOrders[i],
-                    onTap: () => _openOrder(myOrders[i]),
+            return Column(
+              children: [
+                // Summary header
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      context.pagePadding, AppSpacing.md, context.pagePadding, AppSpacing.xs),
+                  child: AppGlassCard(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded,
+                            color: AppColors.success, size: 28),
+                        const SizedBox(width: AppSpacing.md),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${myOrders.length} Order${myOrders.length != 1 ? 's' : ''} Completed',
+                              style: const TextStyle(
+                                  color: AppTheme.textPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15),
+                            ),
+                            Text(
+                              'Total: ₹${myOrders.fold(0.0, (sum, o) => sum + o.grandTotal).toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                  color: AppTheme.textSecondary, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        );
-      }),
+
+                // Orders list
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: ordersController.loadOrders,
+                    color: AppTheme.primary,
+                    child: ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          context.pagePadding, AppSpacing.sm, context.pagePadding, 100),
+                      itemCount: myOrders.length,
+                      itemBuilder: (_, i) => _MyOrderCard(
+                        order: myOrders[i],
+                        onTap: () => _openOrder(myOrders[i]),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }),
+        ),
+      ),
     );
   }
 
@@ -138,7 +146,9 @@ class _MyOrderCard extends StatelessWidget {
         .where((a) => a.staffId == staffId && a.action == 'completed')
         .lastOrNull;
 
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onTap,
       child: AppGlassCard(
         margin: const EdgeInsets.only(bottom: 12),
@@ -231,6 +241,7 @@ class _MyOrderCard extends StatelessWidget {
                 color: AppTheme.textSecondary, size: 20),
           ],
         ),
+      ),
       ),
     );
   }

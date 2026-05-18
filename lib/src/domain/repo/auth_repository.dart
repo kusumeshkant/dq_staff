@@ -9,5 +9,6 @@ abstract class AuthRepository {
   Future<StoreEntity?> getStoreById(String id);
   Future<void> updateProfileName(String name);
   Future<void> updateFcmToken(String token);
+  Future<void> registerInBackend(String name);
   Future<void> signOut();
 }

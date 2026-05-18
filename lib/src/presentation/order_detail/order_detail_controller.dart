@@ -114,16 +114,21 @@ class OrderDetailController extends GetxController {
               const Text('Reason',
                   style: TextStyle(color: Color(0xFFB0C4DE), fontSize: 13)),
               const SizedBox(height: 8),
-              ...reasons.map((r) => RadioListTile<String>(
-                    value: r.$1,
-                    groupValue: selectedReason,
-                    onChanged: (v) => setState(() => selectedReason = v!),
-                    title: Text(r.$2,
-                        style: const TextStyle(color: Colors.white, fontSize: 14)),
-                    activeColor: AppColors.warning,
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                  )),
+              RadioGroup<String>(
+                groupValue: selectedReason,
+                onChanged: (v) => setState(() => selectedReason = v!),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: reasons.map((r) => RadioListTile<String>(
+                        value: r.$1,
+                        title: Text(r.$2,
+                            style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        activeColor: AppColors.warning,
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                      )).toList(),
+                ),
+              ),
               const SizedBox(height: 8),
               TextField(
                 controller: noteController,

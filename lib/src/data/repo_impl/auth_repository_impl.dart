@@ -47,5 +47,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> updateFcmToken(String token) => ds.updateFcmToken(token);
 
   @override
+  Future<void> registerInBackend(String name) => ds.registerInBackend(name);
+
+  @override
   Future<void> signOut() => ds.signOut();
 }

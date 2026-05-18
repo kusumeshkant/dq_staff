@@ -1,4 +1,5 @@
 import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../domain/entity/product_entity.dart';
@@ -38,74 +39,83 @@ class ProductsPage extends StatelessWidget {
           child: const Icon(Icons.add_rounded, color: Colors.white),
         );
       }),
-      body: Column(
-        children: [
-          // Search bar
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-            child: TextField(
-              controller: c.searchController,
-              style: const TextStyle(color: AppTheme.textPrimary),
-              decoration: const InputDecoration(
-                hintText: 'Search by name, barcode or SKU...',
-                prefixIcon: Icon(Icons.search_rounded,
-                    color: AppTheme.textSecondary),
-                contentPadding: EdgeInsets.symmetric(vertical: 0),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          // Product list
-          Expanded(
-            child: Obx(() {
-              if (c.isLoading.value) {
-                return const Center(
-                    child: CircularProgressIndicator(color: AppTheme.primary));
-              }
-              final list = c.filtered;
-              if (list.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.inventory_2_outlined,
-                          size: 56,
-                          color: AppTheme.textSecondary.withValues(alpha: 0.5)),
-                      const SizedBox(height: 12),
-                      Text(
-                        c.searchQuery.value.isEmpty
-                            ? 'No products yet\nTap + to add one'
-                            : 'No results found',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: AppTheme.textSecondary, fontSize: 15),
-                      ),
-                    ],
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: context.maxContentWidth),
+          child: Column(
+            children: [
+              // Search bar
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    context.pagePadding, AppSpacing.sm, context.pagePadding, 0),
+                child: TextField(
+                  controller: c.searchController,
+                  style: const TextStyle(color: AppTheme.textPrimary),
+                  decoration: const InputDecoration(
+                    hintText: 'Search by name, barcode or SKU...',
+                    prefixIcon: Icon(Icons.search_rounded,
+                        color: AppTheme.textSecondary),
+                    contentPadding: EdgeInsets.symmetric(vertical: 0),
                   ),
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: c.loadProducts,
-                color: AppTheme.primary,
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
-                  itemCount: list.length,
-                  itemBuilder: (_, i) {
-                    final ps = Get.find<PermissionService>();
-                    return Obx(() => _ProductCard(
-                      product: list[i],
-                      canEdit: ps.canEditProductInfo.value,
-                      canDelete: ps.canDeleteProduct.value,
-                      onEdit: () => _openEditProduct(c, list[i]),
-                      onDelete: () => c.confirmDelete(list[i]),
-                    ));
-                  },
                 ),
-              );
-            }),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+
+              // Product list
+              Expanded(
+                child: Obx(() {
+                  if (c.isLoading.value) {
+                    return const Center(
+                        child:
+                            CircularProgressIndicator(color: AppTheme.primary));
+                  }
+                  final list = c.filtered;
+                  if (list.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.inventory_2_outlined,
+                              size: 56,
+                              color:
+                                  AppTheme.textSecondary.withValues(alpha: 0.5)),
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            c.searchQuery.value.isEmpty
+                                ? 'No products yet\nTap + to add one'
+                                : 'No results found',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                                color: AppTheme.textSecondary, fontSize: 15),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  return RefreshIndicator(
+                    onRefresh: c.loadProducts,
+                    color: AppTheme.primary,
+                    child: ListView.builder(
+                      padding: EdgeInsets.fromLTRB(
+                          context.pagePadding, 0, context.pagePadding, 100),
+                      itemCount: list.length,
+                      itemBuilder: (_, i) {
+                        final ps = Get.find<PermissionService>();
+                        return Obx(() => _ProductCard(
+                              product: list[i],
+                              canEdit: ps.canEditProductInfo.value,
+                              canDelete: ps.canDeleteProduct.value,
+                              onEdit: () => _openEditProduct(c, list[i]),
+                              onDelete: () => c.confirmDelete(list[i]),
+                            ));
+                      },
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -158,7 +168,11 @@ class _ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLowStock = product.stock <= 5;
 
-    return AppGlassCard(
+    return MouseRegion(
+      cursor: (canEdit || canDelete)
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      child: AppGlassCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -259,6 +273,7 @@ class _ProductCard extends StatelessWidget {
             ),
         ],
       ),
+      ),
     );
   }
 
@@ -266,7 +281,7 @@ class _ProductCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(AppRadius.sm - 2),
           border: Border.all(color: color.withValues(alpha: 0.4)),
         ),
         child: Text(label,

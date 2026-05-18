@@ -1,3 +1,4 @@
+import 'package:dq_staff/design_system/design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -13,9 +14,9 @@ class AddEditProductPage extends StatelessWidget {
     final c = Get.find<AddEditProductController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D1B2A),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D1B2A),
+        backgroundColor: AppColors.background,
         title: Text(c.isEditing ? 'Edit Product' : 'Add Product'),
         actions: [
           Obx(() => c.isSaving.value
@@ -38,7 +39,7 @@ class AddEditProductPage extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -58,11 +59,11 @@ class AddEditProductPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   _ScanButton(onScanned: c.fillBarcode),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
             ],
 
             // Name
@@ -77,7 +78,7 @@ class AddEditProductPage extends StatelessWidget {
                     Icon(Icons.label_outline, color: AppTheme.textSecondary),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
 
             // SKU
             _label('SKU (optional)'),
@@ -90,17 +91,18 @@ class AddEditProductPage extends StatelessWidget {
                     Icon(Icons.tag_rounded, color: AppTheme.textSecondary),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
 
             // Price & Stock — admin only. Staff see an informational note.
             if (c.isStaff) ...[
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md, vertical: AppSpacing.sm + 2),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white24),
+                  color: AppColors.glassWhite04,
+                  borderRadius: BorderRadius.circular(AppRadius.md - 2),
+                  border: Border.all(color: AppColors.glassWhite20),
                 ),
                 child: const Row(
                   children: [
@@ -117,7 +119,7 @@ class AddEditProductPage extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
             ] else ...[
               Row(
                 children: [
@@ -144,7 +146,7 @@ class AddEditProductPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +170,7 @@ class AddEditProductPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
             ],
 
             // Description
@@ -188,19 +190,19 @@ class AddEditProductPage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.xxxl),
 
             // Save button
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: AppSizes.buttonLg,
               child: Obx(() => ElevatedButton(
                     onPressed: c.isSaving.value ? null : c.save,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                          borderRadius: BorderRadius.circular(AppRadius.lg)),
                     ),
                     child: c.isSaving.value
                         ? const SizedBox(
@@ -222,13 +224,8 @@ class AddEditProductPage extends StatelessWidget {
   }
 
   Widget _label(String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 6),
-        child: Text(text,
-            style: const TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.4)),
+        padding: const EdgeInsets.only(bottom: AppSpacing.xs + 2),
+        child: Text(text, style: AppTypography.labelLarge),
       );
 }
 
@@ -247,15 +244,15 @@ class _ScanButton extends StatelessWidget {
         }
       },
       child: Container(
-        width: 48,
-        height: 48,
+        width: AppSizes.touchTarget,
+        height: AppSizes.touchTarget,
         decoration: BoxDecoration(
-          color: AppTheme.primary.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.4)),
+          color: AppColors.primary.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
         ),
         child: const Icon(Icons.qr_code_scanner_rounded,
-            color: AppTheme.primary, size: 22),
+            color: AppColors.primary, size: AppSizes.iconMd - 2),
       ),
     );
   }
@@ -310,8 +307,8 @@ class _BarcodeScanPageState extends State<_BarcodeScanPage> {
               width: 260,
               height: 160,
               decoration: BoxDecoration(
-                border: Border.all(color: AppTheme.primary, width: 3),
-                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.primary, width: 3),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
             ),
           ),

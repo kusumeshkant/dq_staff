@@ -8,8 +8,6 @@ import '../../service_core/networks/graphql_client_provider.dart';
 import '../../service_core/notifications/notification_service.dart';
 import '../home/home_binding.dart';
 import '../home/home_page.dart';
-import '../auth/login/login_binding.dart';
-import '../auth/login/login_page.dart';
 
 class InviteCodeController extends GetxController {
   final AuthRepository authRepo;

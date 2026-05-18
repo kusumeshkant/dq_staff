@@ -1,4 +1,5 @@
 import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -34,15 +35,19 @@ class AccessPage extends StatelessWidget {
                 )),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await ps.load();
-          await c.loadMyRequests();
-        },
-        color: AppTheme.primary,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 40),
-          children: [
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: context.maxContentWidth),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              await ps.load();
+              await c.loadMyRequests();
+            },
+            color: AppTheme.primary,
+            child: ListView(
+              padding: EdgeInsets.fromLTRB(
+                  context.pagePadding, AppSpacing.xs, context.pagePadding, AppSpacing.huge),
+              children: [
             // ── My Permissions ───────────────────────────────────────────────
             _sectionTitle('My Permissions'),
             const SizedBox(height: 8),
@@ -177,7 +182,7 @@ class AccessPage extends StatelessWidget {
                           fontSize: 12, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: c.selectedRequestType.value,
+                    initialValue: c.selectedRequestType.value,
                     dropdownColor: const Color(0xFF1A2B3C),
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
@@ -322,7 +327,9 @@ class AccessPage extends StatelessWidget {
                 children: c.myRequests.map((req) => _RequestHistoryCard(req: req)).toList(),
               );
             }),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

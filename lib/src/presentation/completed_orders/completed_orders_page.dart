@@ -1,4 +1,5 @@
 import 'package:dq_staff/design_system/design_system.dart';
+import 'package:dq_staff/src/utils/responsive/responsive.dart';
 import 'package:dq_staff/widgets/app_glass_card.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,45 +25,54 @@ class CompletedOrdersPage extends StatelessWidget {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() {
-        if (c.isLoading.value) {
-          return const Center(
-              child: CircularProgressIndicator(color: AppTheme.primary));
-        }
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: context.maxContentWidth),
+          child: Obx(() {
+            if (c.isLoading.value) {
+              return const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary));
+            }
 
-        final completed = c.completedOrders;
+            final completed = c.completedOrders;
 
-        if (completed.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.hourglass_empty_rounded,
-                    size: 64, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
-                const SizedBox(height: 16),
-                const Text('No completed orders yet',
-                    style: TextStyle(color: AppTheme.textPrimary, fontSize: 16)),
-                const SizedBox(height: 6),
-                const Text('Completed orders will appear here',
-                    style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-              ],
-            ),
-          );
-        }
+            if (completed.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.hourglass_empty_rounded,
+                        size: 64,
+                        color: AppTheme.textSecondary.withValues(alpha: 0.5)),
+                    const SizedBox(height: AppSpacing.lg),
+                    const Text('No completed orders yet',
+                        style: TextStyle(
+                            color: AppTheme.textPrimary, fontSize: 16)),
+                    const SizedBox(height: AppSpacing.xs + 2),
+                    const Text('Completed orders will appear here',
+                        style: TextStyle(
+                            color: AppTheme.textSecondary, fontSize: 13)),
+                  ],
+                ),
+              );
+            }
 
-        return RefreshIndicator(
-          onRefresh: c.loadOrders,
-          color: AppTheme.primary,
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-            itemCount: completed.length,
-            itemBuilder: (_, i) => _CompletedOrderCard(
-              order: completed[i],
-              onTap: () => _openOrder(completed[i]),
-            ),
-          ),
-        );
-      }),
+            return RefreshIndicator(
+              onRefresh: c.loadOrders,
+              color: AppTheme.primary,
+              child: ListView.builder(
+                padding: EdgeInsets.fromLTRB(
+                    context.pagePadding, AppSpacing.md, context.pagePadding, 100),
+                itemCount: completed.length,
+                itemBuilder: (_, i) => _CompletedOrderCard(
+                  order: completed[i],
+                  onTap: () => _openOrder(completed[i]),
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
     );
   }
 
@@ -87,7 +97,9 @@ class _CompletedOrderCard extends StatelessWidget {
         .where((a) => a.action == 'completed')
         .lastOrNull;
 
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onTap,
       child: AppGlassCard(
         margin: const EdgeInsets.only(bottom: 12),
@@ -198,6 +210,7 @@ class _CompletedOrderCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
       ),
     );
   }

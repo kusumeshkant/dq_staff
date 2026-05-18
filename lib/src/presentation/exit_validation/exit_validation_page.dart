@@ -41,7 +41,13 @@ class _ExitValidationPageState extends State<ExitValidationPage> {
                 ? IconButton(
                     icon: const Icon(Icons.flash_on_rounded,
                         color: AppTheme.textPrimary),
-                    onPressed: () => _cam.toggleTorch(),
+                    onPressed: () async {
+                      try {
+                        await _cam.toggleTorch();
+                      } catch (_) {
+                        // Torch not supported on web
+                      }
+                    },
                   )
                 : const SizedBox.shrink()),
           ],
@@ -78,7 +84,7 @@ class _IdleView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.xxxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -94,7 +100,7 @@ class _IdleView extends StatelessWidget {
               child: const Icon(Icons.qr_code_scanner_rounded,
                   color: AppColors.info, size: 44),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.xxl),
             const Text(
               'Exit Validation',
               style: TextStyle(
@@ -102,17 +108,17 @@ class _IdleView extends StatelessWidget {
                   fontSize: 22,
                   fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.sm + 2),
             const Text(
               'Scan the customer\'s receipt QR code\nto verify payment before they exit.',
               textAlign: TextAlign.center,
               style:
                   TextStyle(color: AppTheme.textSecondary, fontSize: 14, height: 1.5),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.xxxl),
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: AppSizes.buttonLg,
               child: ElevatedButton.icon(
                 onPressed: onStart,
                 icon: const Icon(Icons.qr_code_scanner_rounded),
@@ -391,7 +397,7 @@ class _RejectedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(AppSpacing.xxxl),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -406,7 +412,7 @@ class _RejectedView extends StatelessWidget {
             ),
             child: const Icon(Icons.cancel_rounded, color: AppColors.error, size: 54),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.xl),
           const Text(
             'Cannot Exit',
             style: TextStyle(
@@ -414,7 +420,7 @@ class _RejectedView extends StatelessWidget {
                 fontSize: 24,
                 fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm + 2),
           AppGlassCard(
             child: Row(
               children: [
@@ -431,10 +437,10 @@ class _RejectedView extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.xxxl),
           SizedBox(
             width: double.infinity,
-            height: 52,
+            height: AppSizes.buttonLg,
             child: ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.qr_code_scanner_rounded),

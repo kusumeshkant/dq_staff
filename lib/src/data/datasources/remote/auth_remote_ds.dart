@@ -95,6 +95,12 @@ class AuthRemoteDs {
     }
   ''';
 
+  static const _registerAsCustomerMutation = r'''
+    mutation RegisterAsCustomer {
+      registerAsCustomer { id name }
+    }
+  ''';
+
   Future<void> loginWithEmail(String email, String password) async {
     _logRequest('loginWithEmail [Firebase]', {'email': email});
     try {
@@ -115,6 +121,19 @@ class AuthRemoteDs {
       debugPrint('╚══ [StaffAuth] registerWithEmail ✗  $e');
       rethrow;
     }
+  }
+
+  Future<void> registerInBackend(String name) async {
+    _logRequest('registerInBackend [registerAsCustomer + updateProfile]', {'name': name});
+    final r1 = await _client.mutate(
+      MutationOptions(document: gql(_registerAsCustomerMutation)),
+    );
+    _check('registerInBackend.registerAsCustomer', r1);
+    final r2 = await _client.mutate(
+      MutationOptions(document: gql(_updateProfileMutation), variables: {'name': name}),
+    );
+    _check('registerInBackend.updateProfile', r2);
+    _logSuccess('registerInBackend', name);
   }
 
   Future<void> updateProfileName(String name) async {

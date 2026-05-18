@@ -72,7 +72,7 @@ class OrdersPage extends StatelessWidget {
 
             // Stats row
             Obx(() => Padding(
-                  padding: EdgeInsets.fromLTRB(context.pagePadding, 8, context.pagePadding, 0),
+                  padding: EdgeInsets.fromLTRB(context.pagePadding, AppSpacing.sm, context.pagePadding, 0),
                   child: Row(
                     children: [
                       _StatChip(
@@ -81,7 +81,7 @@ class OrdersPage extends StatelessWidget {
                         color: AppTheme.primary,
                         icon: Icons.receipt_long_rounded,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       _StatChip(
                         label: 'Failed',
                         value: c.failedCount,
@@ -109,11 +109,11 @@ class OrdersPage extends StatelessWidget {
                     ],
                   ),
                 )),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
 
             // Search bar
             Padding(
-              padding: EdgeInsets.fromLTRB(context.pagePadding, 8, context.pagePadding, 0),
+              padding: EdgeInsets.fromLTRB(context.pagePadding, AppSpacing.sm, context.pagePadding, 0),
               child: Row(
                 children: [
                   Expanded(
@@ -130,11 +130,11 @@ class OrdersPage extends StatelessWidget {
                       onSubmitted: (_) => c.searchByOrderId(),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Obx(() => c.isSearching.value
                       ? const SizedBox(
-                          width: 42,
-                          height: 42,
+                          width: AppSizes.touchTarget - 6,
+                          height: AppSizes.touchTarget - 6,
                           child: Center(
                               child: SizedBox(
                                   width: 20,
@@ -147,7 +147,7 @@ class OrdersPage extends StatelessWidget {
                             backgroundColor:
                                 AppTheme.primary.withValues(alpha: 0.2),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                                borderRadius: BorderRadius.circular(AppRadius.md - 2)),
                           ),
                           icon: const Icon(Icons.arrow_forward_rounded,
                               color: AppTheme.primary),
@@ -155,7 +155,7 @@ class OrdersPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
 
             // Orders list
             Expanded(
@@ -277,7 +277,9 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
       onTap: onTap,
       child: AppGlassCard(
         margin: const EdgeInsets.only(bottom: 12),
@@ -383,6 +385,7 @@ class _OrderCard extends StatelessWidget {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -404,7 +407,8 @@ class _StaffDetailCard extends StatelessWidget {
       final isAdmin = user.isAdmin;
 
       return Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.pageHorizontal, AppSpacing.md, AppSpacing.pageHorizontal, AppSpacing.xs),
         child: AppGlassCard(
           padding: const EdgeInsets.all(14),
           child: Row(
