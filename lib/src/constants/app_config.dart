@@ -10,9 +10,16 @@ class AppConfig {
   static const bool   isUat   = _flavor == 'uat';
   static const bool   isProd  = _flavor == 'prod';
 
+  // UAT backend provider — set via --dart-define=BACKEND_PROVIDER=vercel|render|azure
+  static const _backendProvider = String.fromEnvironment('BACKEND_PROVIDER', defaultValue: 'azure');
+
   static const String graphqlEndpoint = _flavor == 'dev'
       ? 'https://de-backend-iota.vercel.app/graphql'
       : _flavor == 'uat'
-          ? 'https://ca-dq-uat.ashysea-f5376b70.centralindia.azurecontainerapps.io/graphql'
+          ? (_backendProvider == 'vercel'
+              ? 'https://de-backend-iota.vercel.app/graphql'
+              : _backendProvider == 'render'
+                  ? 'https://dq-backend-uat.onrender.com/graphql'
+                  : 'https://ca-dq-uat.ashysea-f5376b70.centralindia.azurecontainerapps.io/graphql')
           : 'https://ca-dq-backend.ashysea-f5376b70.centralindia.azurecontainerapps.io/graphql';
 }
