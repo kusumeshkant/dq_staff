@@ -21,10 +21,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:get/get.dart';
 import 'firebase_options.dart';
 
 void main() {
+  usePathUrlStrategy();
   // runZonedGuarded catches all uncaught async errors in the app's zone.
   runZonedGuarded(_bootstrap, (error, stack) {
     if (!kIsWeb && Get.isRegistered<CrashlyticsService>()) {
