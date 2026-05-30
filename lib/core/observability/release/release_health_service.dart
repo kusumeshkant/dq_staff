@@ -29,6 +29,7 @@ class ReleaseHealthService extends GetxService {
   }
 
   void _tagCrashlytics() {
+    if (kIsWeb) return;
     try {
       FirebaseCrashlytics.instance
         ..setCustomKey('session_id', sessionId)

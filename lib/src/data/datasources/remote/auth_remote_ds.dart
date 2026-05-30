@@ -61,8 +61,8 @@ class AuthRemoteDs {
     }
   ''';
 
-  static const _validateAppAccessMutation = r'''
-    mutation ValidateAppAccess($appId: String!) {
+  static const _validateAppAccessQuery = r'''
+    query ValidateAppAccess($appId: String!) {
       validateAppAccess(appId: $appId) {
         id
         name
@@ -155,10 +155,10 @@ class AuthRemoteDs {
   }
 
   Future<Map<String, dynamic>> validateAppAccess() async {
-    _logRequest('validateAppAccess [mutation: ValidateAppAccess]', {'appId': 'STAFF'});
-    final result = await _client.mutate(
-      MutationOptions(
-        document: gql(_validateAppAccessMutation),
+    _logRequest('validateAppAccess [query: ValidateAppAccess]', {'appId': 'STAFF'});
+    final result = await _client.query(
+      QueryOptions(
+        document: gql(_validateAppAccessQuery),
         variables: const {'appId': 'STAFF'},
         fetchPolicy: FetchPolicy.networkOnly,
       ),
