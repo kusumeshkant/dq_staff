@@ -13,39 +13,43 @@ import 'models/crash_category.dart';
 /// PII policy: never log phone numbers, raw tokens, emails, or passwords.
 /// Only UIDs and store IDs (opaque identifiers) are permitted.
 class CrashlyticsService extends GetxService {
-  late final FirebaseCrashlytics _crashlytics;
+  // Null on web — Crashlytics has no Flutter Web implementation.
+  FirebaseCrashlytics? _crashlytics;
 
   @override
   void onInit() {
     super.onInit();
+    if (kIsWeb) return;
     _crashlytics = FirebaseCrashlytics.instance;
-    _crashlytics.setCrashlyticsCollectionEnabled(!AppConfig.isDev);
-    _crashlytics.setCustomKey('flavor', AppConfig.flavor);
-    _crashlytics.setCustomKey('app', 'dq_staff');
+    _crashlytics!.setCrashlyticsCollectionEnabled(!AppConfig.isDev);
+    _crashlytics!.setCustomKey('flavor', AppConfig.flavor);
+    _crashlytics!.setCustomKey('app', 'dq_staff');
   }
 
   // ── User context ────────────────────────────────────────────────────────────
 
   Future<void> setUserContext({String? uid, String? storeId, String? role}) async {
-    if (uid != null) await _crashlytics.setUserIdentifier(uid);
-    if (storeId != null) await _crashlytics.setCustomKey('store_id', storeId);
-    if (role != null) await _crashlytics.setCustomKey('role', role);
+    if (_crashlytics == null) return;
+    if (uid != null) await _crashlytics!.setUserIdentifier(uid);
+    if (storeId != null) await _crashlytics!.setCustomKey('store_id', storeId);
+    if (role != null) await _crashlytics!.setCustomKey('role', role);
   }
 
   Future<void> clearUserContext() async {
-    await _crashlytics.setUserIdentifier('');
-    await _crashlytics.setCustomKey('store_id', '');
-    await _crashlytics.setCustomKey('role', '');
+    if (_crashlytics == null) return;
+    await _crashlytics!.setUserIdentifier('');
+    await _crashlytics!.setCustomKey('store_id', '');
+    await _crashlytics!.setCustomKey('role', '');
   }
 
   // ── Breadcrumb logging ──────────────────────────────────────────────────────
 
   void log(String message) {
-    if (AppConfig.isDev) {
+    if (AppConfig.isDev || _crashlytics == null) {
       debugPrint('[Crashlytics:breadcrumb] $message');
       return;
     }
-    _crashlytics.log(message);
+    _crashlytics!.log(message);
   }
 
   // ── Error recording ─────────────────────────────────────────────────────────
@@ -57,12 +61,12 @@ class CrashlyticsService extends GetxService {
     String? reason,
     bool fatal = false,
   }) async {
-    if (AppConfig.isDev) {
+    if (AppConfig.isDev || _crashlytics == null) {
       debugPrint('[Crashlytics:DEV] [${category.label}] $exception\n$stack');
       return;
     }
-    await _crashlytics.setCustomKey('crash_category', category.label);
-    await _crashlytics.recordError(
+    await _crashlytics!.setCustomKey('crash_category', category.label);
+    await _crashlytics!.recordError(
       exception,
       stack,
       fatal: fatal,
@@ -71,11 +75,11 @@ class CrashlyticsService extends GetxService {
   }
 
   Future<void> recordFlutterError(FlutterErrorDetails details) async {
-    if (AppConfig.isDev) {
+    if (AppConfig.isDev || _crashlytics == null) {
       debugPrint('[Crashlytics:DEV] [widget] ${details.exceptionAsString()}');
       return;
     }
-    await _crashlytics.setCustomKey('crash_category', CrashCategory.widget.label);
-    await _crashlytics.recordFlutterError(details);
+    await _crashlytics!.setCustomKey('crash_category', CrashCategory.widget.label);
+    await _crashlytics!.recordFlutterError(details);
   }
 }

@@ -27,7 +27,7 @@ import 'firebase_options.dart';
 void main() {
   // runZonedGuarded catches all uncaught async errors in the app's zone.
   runZonedGuarded(_bootstrap, (error, stack) {
-    if (Get.isRegistered<CrashlyticsService>()) {
+    if (!kIsWeb && Get.isRegistered<CrashlyticsService>()) {
       Get.find<CrashlyticsService>().recordError(
         error, stack, category: CrashCategory.unknown, fatal: true,
       );
@@ -70,13 +70,15 @@ Future<void> _bootstrap() async {
   // Wire global error handlers to Crashlytics.
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    crashlytics.recordFlutterError(details);
+    if (!kIsWeb) crashlytics.recordFlutterError(details);
   };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    crashlytics.recordError(error, stack,
-        category: CrashCategory.rendering, fatal: true);
-    return true;
-  };
+  if (!kIsWeb) {
+    PlatformDispatcher.instance.onError = (error, stack) {
+      crashlytics.recordError(error, stack,
+          category: CrashCategory.rendering, fatal: true);
+      return true;
+    };
+  }
 
   // ── Step 2: Platform UI (non-web only) ──────────────────────────────────────
   if (!kIsWeb) {
