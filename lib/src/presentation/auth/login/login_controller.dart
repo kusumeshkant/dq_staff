@@ -83,7 +83,13 @@ class LoginController extends GetxController {
       // which is exactly what used to happen and left staff staring at
       // "Check your internet connection" with a working connection.
       debugPrint('[LoginController] access denied ✗  code=${e.code} hint=${e.hint}');
-      errorMessage.value = roleMismatchMessage(e, isUat: AppConfig.isUat);
+      // Only a genuine role rejection gets the role-specific copy. A server
+      // fault or a malformed query also arrives as a GraphQL error, and telling
+      // that user to "ask your admin for an invite" would send them down the
+      // wrong path entirely — those fall through to the general handler.
+      errorMessage.value = e.isRoleMismatch
+          ? roleMismatchMessage(e, isUat: AppConfig.isUat)
+          : _friendlyError(e.message);
     } catch (e) {
       debugPrint('[LoginController] login() FAILED ✗  $e');
       errorMessage.value = _friendlyError(e.toString());

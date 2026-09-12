@@ -73,6 +73,32 @@ void main() {
     });
   });
 
+  group('errors carrying no usable extensions', () {
+    // Found in self-review: the UI renders the error box only when the message
+    // is non-empty, so returning an empty string here shows the user nothing at
+    // all — the spinner just stops. Silent failure is worse than a blunt message.
+    test('an empty server message never produces empty UI copy', () {
+      final msg = roleMismatchMessage(const AppAccessException(''));
+      expect(msg, isNotEmpty);
+      expect(msg, contains('admin'));
+    });
+
+    test('a whitespace-only server message is treated as empty', () {
+      expect(roleMismatchMessage(const AppAccessException('   ')).trim(), isNotEmpty);
+    });
+
+    test('an error with no code and no hint is not presented as a role problem', () {
+      final e = const AppAccessException('Cannot query field "foo" on type "Query".');
+      expect(e.isRoleMismatch, isFalse);
+    });
+
+    test('a server fault is not classified as a role mismatch', () {
+      const e = AppAccessException('Internal server error',
+          code: 'INTERNAL_SERVER_ERROR');
+      expect(e.isRoleMismatch, isFalse);
+    });
+  });
+
   group('regression guard — prose must not drive classification', () {
     test('a role rejection whose message mentions a connection is still a role rejection', () {
       // The old substring matcher keyed on "connection" and would have

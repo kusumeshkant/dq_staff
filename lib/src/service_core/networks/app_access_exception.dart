@@ -59,5 +59,14 @@ String roleMismatchMessage(AppAccessException e, {bool isUat = false}) {
 
   // Fall back to the server's own message — it is already user-readable, and
   // is a better thing to show than a generic placeholder.
+  //
+  // Unless it is blank. The login and register screens render the error box
+  // only when the message is non-empty, so returning '' shows the user nothing
+  // at all: the spinner stops and the screen sits there looking idle. A blunt
+  // message beats a silent failure.
+  if (e.message.trim().isEmpty) {
+    return 'Could not sign you in to the staff app. '
+        'Ask your store admin to confirm your access.';
+  }
   return e.message;
 }
