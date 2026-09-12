@@ -3,12 +3,10 @@ import 'package:get/get.dart';
 import '../../../constants/app_config.dart';
 import '../../../domain/repo/auth_repository.dart';
 import '../../../service_core/auth/session_manager.dart';
+import '../../../routes/app_routes.dart';
+import '../../../service_core/networks/app_access_exception.dart';
 import '../../../service_core/networks/graphql_client_provider.dart';
 import '../../../service_core/notifications/notification_service.dart';
-import '../../home/home_binding.dart';
-import '../../home/home_page.dart';
-import '../../invite/invite_code_binding.dart';
-import '../../invite/invite_code_page.dart';
 
 class LoginController extends GetxController {
   final AuthRepository authRepo;
@@ -57,7 +55,7 @@ class LoginController extends GetxController {
 
       if (user.storeId == null || user.storeId!.isEmpty) {
         debugPrint('[LoginController] no storeId — routing to InviteCodePage');
-        Get.offAll(() => const InviteCodePage(), binding: InviteCodeBinding());
+        Get.offAllNamed(AppRoutes.invite);
         return;
       }
 
@@ -78,7 +76,14 @@ class LoginController extends GetxController {
       }
 
       debugPrint('[LoginController] login complete — routing to HomePage');
-      Get.offAll(() => const HomePage(), binding: HomeBinding());
+      Get.offAllNamed(AppRoutes.home);
+    } on AppAccessException catch (e) {
+      // The backend rejected the account's ROLE. This is never a connectivity
+      // problem, so it must not fall through to the network-error bucket —
+      // which is exactly what used to happen and left staff staring at
+      // "Check your internet connection" with a working connection.
+      debugPrint('[LoginController] access denied ✗  code=${e.code} hint=${e.hint}');
+      errorMessage.value = roleMismatchMessage(e, isUat: AppConfig.isUat);
     } catch (e) {
       debugPrint('[LoginController] login() FAILED ✗  $e');
       errorMessage.value = _friendlyError(e.toString());

@@ -4,9 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../domain/repo/auth_repository.dart';
+import '../../../routes/app_routes.dart';
 import '../../../service_core/networks/graphql_client_provider.dart';
-import '../login/login_page.dart';
-import '../login/login_binding.dart';
 
 class RegisterController extends GetxController {
   final AuthRepository authRepo;
@@ -18,6 +17,7 @@ class RegisterController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final inviteCodeController = TextEditingController();
   final obscurePassword = true.obs;
 
   @override
@@ -25,6 +25,7 @@ class RegisterController extends GetxController {
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    inviteCodeController.dispose();
     super.onClose();
   }
 
@@ -32,9 +33,18 @@ class RegisterController extends GetxController {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
+    final inviteCode = inviteCodeController.text.trim().toUpperCase();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       errorMessage.value = 'Please fill in all fields.';
+      return;
+    }
+    // Staff registration is invite-only. Checked here as well as server-side so
+    // the user is not asked to create a Firebase account we would then have to
+    // roll back.
+    if (inviteCode.isEmpty) {
+      errorMessage.value =
+          'An invite code is required. Ask your store admin to send you one.';
       return;
     }
     if (password.length < 8) {
@@ -59,9 +69,9 @@ class RegisterController extends GetxController {
       // Uses a login-scoped GraphQL client (no ErrorLink), so any backend
       // error surfaces as a plain exception rather than triggering
       // SessionManager.expireSession() and showing a false "Session Expired".
-      debugPrint('[Register] step 3: backend onboarding name=$name');
+      debugPrint('[Register] step 3: backend onboarding name=$name code=$inviteCode');
       try {
-        await authRepo.registerInBackend(name);
+        await authRepo.registerInBackend(name, inviteCode);
         debugPrint('[Register] step 3 OK');
       } catch (backendError) {
         // Backend creation failed — roll back by deleting the Firebase account
@@ -86,13 +96,10 @@ class RegisterController extends GetxController {
       await authRepo.signOut();
       GraphQLClientProvider.reset();
 
-      Get.offAll(
-        () => const LoginPage(),
-        binding: LoginBinding(),
-      );
+      Get.offAllNamed(AppRoutes.login);
       Get.snackbar(
         'Account Created',
-        'Your account is pending activation. Contact your admin to get access.',
+        'Your staff account is ready. Sign in to get started.',
         backgroundColor: AppColors.success,
         colorText: Colors.white,
         duration: const Duration(seconds: 6),
@@ -132,9 +139,17 @@ class RegisterController extends GetxController {
   String _friendlyBackendError(String raw) {
     final msg =
         raw.startsWith('Exception: ') ? raw.substring('Exception: '.length) : raw;
-    if (msg.toLowerCase().contains('network') ||
-        msg.toLowerCase().contains('connection') ||
-        msg.toLowerCase().contains('reach')) {
+    final lower = msg.toLowerCase();
+
+    // Invite errors are the most likely failure here and the backend already
+    // phrases them for the user ("expired", "already been used", "issued to a
+    // different email address"). Pass them through — replacing them with a
+    // generic message would strip the only actionable detail.
+    if (lower.contains('invite')) return msg;
+
+    if (lower.contains('network') ||
+        lower.contains('connection') ||
+        lower.contains('reach')) {
       return 'Could not connect to server. Check your internet connection and try again.';
     }
     if (AppConfig.isUat) return '[UAT] $msg';

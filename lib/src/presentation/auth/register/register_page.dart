@@ -80,6 +80,7 @@ class RegisterPage extends StatelessWidget {
                                   keyboardType: TextInputType.name,
                                   textCapitalization:
                                       TextCapitalization.words,
+                                  onChanged: (_) {},
                                   style: const TextStyle(
                                       color: AppTheme.textPrimary),
                                   decoration: const InputDecoration(
@@ -92,6 +93,7 @@ class RegisterPage extends StatelessWidget {
                                 TextField(
                                   controller: c.emailController,
                                   keyboardType: TextInputType.emailAddress,
+                                  onChanged: (_) {},
                                   style: const TextStyle(
                                       color: AppTheme.textPrimary),
                                   decoration: const InputDecoration(
@@ -104,6 +106,7 @@ class RegisterPage extends StatelessWidget {
                                 Obx(() => TextField(
                                       controller: c.passwordController,
                                       obscureText: c.obscurePassword.value,
+                                      onChanged: (_) {},
                                       style: const TextStyle(
                                           color: AppTheme.textPrimary),
                                       decoration: InputDecoration(
@@ -124,6 +127,26 @@ class RegisterPage extends StatelessWidget {
                                         ),
                                       ),
                                     )),
+                                const SizedBox(height: AppSpacing.md + 2),
+                                // Invite code — staff registration is invite-only.
+                                // The code is issued by a store admin and is bound
+                                // to the email address above.
+                                TextField(
+                                  controller: c.inviteCodeController,
+                                  textCapitalization:
+                                      TextCapitalization.characters,
+                                  onChanged: (_) {},
+                                  style: const TextStyle(
+                                      color: AppTheme.textPrimary),
+                                  decoration: const InputDecoration(
+                                    labelText: 'Invite Code',
+                                    hintText: 'DQ-XXXX-XXXX',
+                                    helperText:
+                                        'Sent by your store admin to this email address',
+                                    prefixIcon: Icon(Icons.confirmation_number_outlined,
+                                        color: AppTheme.textSecondary),
+                                  ),
+                                ),
                                 const SizedBox(height: AppSpacing.md),
                                 // Error — covers both Firebase and registerInBackend errors
                                 Obx(() => c.errorMessage.value.isNotEmpty

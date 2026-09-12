@@ -2,6 +2,7 @@ import 'package:dq_staff/src/service_core/networks/graphql_client_provider.dart'
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import '../../../service_core/networks/app_access_exception.dart';
 
 class AuthRemoteDs {
   // Always use the current client so reinitWithToken() is picked up immediately
@@ -95,9 +96,17 @@ class AuthRemoteDs {
     }
   ''';
 
-  static const _registerAsCustomerMutation = r'''
-    mutation RegisterAsCustomer {
-      registerAsCustomer { id name }
+  /// Invite-gated staff signup.
+  ///
+  /// Replaces the previous registerAsCustomer call, which created the account
+  /// with the customer role and so produced an account that
+  /// validateAppAccess(STAFF) then refused — no invited staff member could get
+  /// into this app at all.
+  static const _registerStaffWithInviteMutation = r'''
+    mutation RegisterStaffWithInvite($token: String!, $name: String) {
+      registerStaffWithInvite(token: $token, name: $name) {
+        id name email role roles storeId
+      }
     }
   ''';
 
@@ -123,16 +132,30 @@ class AuthRemoteDs {
     }
   }
 
-  Future<void> registerInBackend(String name) async {
-    _logRequest('registerInBackend [registerAsCustomer + updateProfile]', {'name': name});
-    final r1 = await _client.mutate(
-      MutationOptions(document: gql(_registerAsCustomerMutation)),
+  /// Creates the backend staff record from an admin-issued invite code.
+  ///
+  /// The name is set by the same mutation, so there is no follow-up
+  /// updateProfile call — one round trip, and no window in which the account
+  /// exists without its name.
+  Future<void> registerInBackend(String name, String inviteCode) async {
+    _logRequest('registerInBackend [registerStaffWithInvite]',
+        {'name': name, 'token': inviteCode});
+    final result = await _client.mutate(
+      MutationOptions(
+        document: gql(_registerStaffWithInviteMutation),
+        variables: {'token': inviteCode, 'name': name},
+      ),
     );
-    _check('registerInBackend.registerAsCustomer', r1);
-    final r2 = await _client.mutate(
-      MutationOptions(document: gql(_updateProfileMutation), variables: {'name': name}),
-    );
-    _check('registerInBackend.updateProfile', r2);
+    if (result.hasException) {
+      _logError('registerInBackend', result.exception!);
+      // Pass the backend message through verbatim — invite errors ("expired",
+      // "issued to a different email") are already written for the user, and a
+      // categorised placeholder would hide the one thing they need to know.
+      if (result.exception!.graphqlErrors.isNotEmpty) {
+        throw Exception(result.exception!.graphqlErrors.first.message);
+      }
+      throw Exception(_errorMessage(result.exception!));
+    }
     _logSuccess('registerInBackend', name);
   }
 
@@ -165,10 +188,16 @@ class AuthRemoteDs {
     );
     if (result.hasException) {
       _logError('validateAppAccess', result.exception!);
-      // Pass through backend error messages verbatim — they are already
-      // user-readable (account-separation errors, role errors, etc.).
+      // Carry the server's extensions through, not just the prose. A role
+      // rejection and an unreachable backend need different copy, and the
+      // message text alone is not a reliable way to tell them apart.
       if (result.exception!.graphqlErrors.isNotEmpty) {
-        throw Exception(result.exception!.graphqlErrors.first.message);
+        final err = result.exception!.graphqlErrors.first;
+        throw AppAccessException(
+          err.message,
+          code: err.extensions?['code'] as String?,
+          hint: err.extensions?['hint'] as String?,
+        );
       }
       throw Exception(_errorMessage(result.exception!));
     }
