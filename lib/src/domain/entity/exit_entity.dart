@@ -140,17 +140,24 @@ class ExitResult {
       );
 }
 
-/// What the scanner or the typed-code box accepts: the customer's exit QR
-/// ("DQX1:" + 22-char code) or, for orders placed before exit codes, the raw
-/// 24-character order id. Returns the normalised code, or null if invalid.
+/// What the scanner or the typed-code box accepts — the same rules as the
+/// server (exitService.filterForScannedCode):
 ///
-/// The customer app prints the code in groups ("DQX1: XECZ 08dI Un6U …"), so
-/// spaces are ignored, the prefix may be typed in any case or left out. The
-/// code itself is case-sensitive.
+/// - The customer's exit code: 24 Crockford characters (0-9, A-Z without
+///   I L O U), printed as "DQX1: XXXX XXXX XXXX XXXX XXXX XXXX". Spaces and
+///   hyphens are ignored, the "DQX1:" prefix is optional and any case, the
+///   code is upper-cased and the characters people confuse are mapped
+///   (O → 0, I and L → 1). Returns "DQX1:<code>".
+/// - For orders placed before exit codes, the raw 24-hex order id, sent as
+///   typed; a bare hex string is also a valid code, and the server tries both.
+///
+/// Returns null for anything else, so it never reaches the server.
 String? normaliseExitCode(String raw) {
-  final s = raw.replaceAll(RegExp(r'\s+'), '');
-  final m = RegExp(r'^(?:[dD][qQ][xX]1:)?([A-Za-z0-9_-]{22})$').firstMatch(s);
-  if (m != null) return 'DQX1:${m.group(1)}';
-  if (RegExp(r'^[a-fA-F0-9]{24}$').hasMatch(s)) return s.toLowerCase();
+  var body = raw.replaceAll(RegExp(r'[\s-]+'), '');
+  final prefixed = RegExp(r'^dqx1:', caseSensitive: false).hasMatch(body);
+  if (prefixed) body = body.substring(5);
+  if (!prefixed && RegExp(r'^[a-fA-F0-9]{24}$').hasMatch(body)) return body.toLowerCase();
+  final code = body.toUpperCase().replaceAll('O', '0').replaceAll(RegExp('[IL]'), '1');
+  if (RegExp(r'^[0-9A-HJKMNP-TV-Z]{24}$').hasMatch(code)) return 'DQX1:$code';
   return null;
 }

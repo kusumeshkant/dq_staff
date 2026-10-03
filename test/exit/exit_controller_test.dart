@@ -26,14 +26,25 @@ void main() {
     });
 
     test('accepts the code as the customer app prints it: grouped, any-case prefix, or no prefix', () {
-      expect(normaliseExitCode('DQX1: AbCd EfGh IjKl MnOp QrSt Uv'), qr);
-      expect(normaliseExitCode(' dqx1:AbCdEfGhIjKlMnOpQrStUv '), qr);
-      expect(normaliseExitCode('AbCd EfGh IjKl MnOp QrSt Uv'), qr);
-      expect(normaliseExitCode('abcdefghijklmnopqrstuv'), 'DQX1:abcdefghijklmnopqrstuv', reason: 'the code itself stays case-sensitive');
+      expect(normaliseExitCode('DQX1: JCTW B6R0 XDPG Z5MB VHFX DD1M'), qr);
+      expect(normaliseExitCode(' dqx1: jctw b6r0 xdpg z5mb vhfx dd1m '), qr);
+      expect(normaliseExitCode('JCTW-B6R0-XDPG-Z5MB-VHFX-DD1M'), qr);
+      expect(normaliseExitCode('jctwb6r0xdpgz5mbvhfxdd1m'), qr);
+    });
+
+    test('maps the characters people confuse: O→0, I/L→1', () {
+      expect(normaliseExitCode('DQX1: JCTW B6RO XDPG Z5MB VHFX DDIM'), qr);
+      expect(normaliseExitCode('DQX1: JCTW B6Ro XDPG Z5MB VHFX DDlM'), qr);
+      expect(normaliseExitCode('DQX1: JCTW B6R0 XDPG Z5MB VHFX DDLM'), qr);
     });
 
     test('rejects anything else', () {
-      for (final bad in ['', 'DQX1:', 'DQX1:short', 'DQX2:AbCdEfGhIjKlMnOpQrStUv', 'hello', '6ac02873ef56a98ea03e376', '$qr x']) {
+      for (final bad in ['', 'DQX1:', 'DQX1:short', 'DQX2:JCTWB6R0XDPGZ5MBVHFXDD1M', 'hello',
+          'DQX1:AbCdEfGhIjKlMnOpQrStUv', // the dropped 22-char format
+          'DQX1:JCTWB6R0XDPGZ5MBVHFXDDUM', // U is not in the alphabet
+          'DQX1:JCTWB6R0XDPGZ5MBVHFXDD1', // 23
+          'DQX1:JCTWB6R0XDPGZ5MBVHFX_D1M', // symbol
+          '6ac02873ef56a98ea03e376', '$qr x']) {
         expect(normaliseExitCode(bad), isNull, reason: bad);
       }
     });

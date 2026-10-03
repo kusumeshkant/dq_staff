@@ -54,6 +54,13 @@ void main() {
     expect(find.byKey(const Key('exit-manual-summary')), findsOneWidget);
   });
 
+  testWidgets('a code typed with confused characters (o for 0, l for 1, lower case, spaces) is found', (t) async {
+    await pump(t);
+    await typeCode(t, 'dqx1: jctw b6ro xdpg z5mb vhfx ddlm');
+    expect(api.verifyCalls, [qr]);
+    expect(find.text('Slim Fit Shirt'), findsOneWidget);
+  });
+
   testWidgets('an invalid typed code shows the reason and sends nothing', (t) async {
     await pump(t);
     await typeCode(t, 'not-a-code');

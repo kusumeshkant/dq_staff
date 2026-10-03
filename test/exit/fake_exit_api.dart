@@ -55,7 +55,7 @@ class FakeExitApi implements ExitApi {
   }
 }
 
-const qr = 'DQX1:AbCdEfGhIjKlMnOpQrStUv';
+const qr = 'DQX1:JCTWB6R0XDPGZ5MBVHFXDD1M';
 
 ExitOrder order({bool flagged = false, String id = '6ac02873ef56a98ea03e3764', int age = 12}) => ExitOrder(
       id: id,
