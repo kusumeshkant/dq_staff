@@ -143,9 +143,14 @@ class ExitResult {
 /// What the scanner or the typed-code box accepts: the customer's exit QR
 /// ("DQX1:" + 22-char code) or, for orders placed before exit codes, the raw
 /// 24-character order id. Returns the normalised code, or null if invalid.
+///
+/// The customer app prints the code in groups ("DQX1: XECZ 08dI Un6U …"), so
+/// spaces are ignored, the prefix may be typed in any case or left out. The
+/// code itself is case-sensitive.
 String? normaliseExitCode(String raw) {
-  final s = raw.trim();
-  if (RegExp(r'^DQX1:[A-Za-z0-9_-]{22}$').hasMatch(s)) return s;
+  final s = raw.replaceAll(RegExp(r'\s+'), '');
+  final m = RegExp(r'^(?:[dD][qQ][xX]1:)?([A-Za-z0-9_-]{22})$').firstMatch(s);
+  if (m != null) return 'DQX1:${m.group(1)}';
   if (RegExp(r'^[a-fA-F0-9]{24}$').hasMatch(s)) return s.toLowerCase();
   return null;
 }

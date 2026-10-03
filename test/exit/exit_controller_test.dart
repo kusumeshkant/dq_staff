@@ -25,8 +25,15 @@ void main() {
       expect(normaliseExitCode('6AC02873EF56A98EA03E3764'), '6ac02873ef56a98ea03e3764');
     });
 
+    test('accepts the code as the customer app prints it: grouped, any-case prefix, or no prefix', () {
+      expect(normaliseExitCode('DQX1: AbCd EfGh IjKl MnOp QrSt Uv'), qr);
+      expect(normaliseExitCode(' dqx1:AbCdEfGhIjKlMnOpQrStUv '), qr);
+      expect(normaliseExitCode('AbCd EfGh IjKl MnOp QrSt Uv'), qr);
+      expect(normaliseExitCode('abcdefghijklmnopqrstuv'), 'DQX1:abcdefghijklmnopqrstuv', reason: 'the code itself stays case-sensitive');
+    });
+
     test('rejects anything else', () {
-      for (final bad in ['', 'DQX1:', 'DQX1:short', 'dqx1:AbCdEfGhIjKlMnOpQrStUv', 'hello', '6ac02873ef56a98ea03e376', '$qr x']) {
+      for (final bad in ['', 'DQX1:', 'DQX1:short', 'DQX2:AbCdEfGhIjKlMnOpQrStUv', 'hello', '6ac02873ef56a98ea03e376', '$qr x']) {
         expect(normaliseExitCode(bad), isNull, reason: bad);
       }
     });
