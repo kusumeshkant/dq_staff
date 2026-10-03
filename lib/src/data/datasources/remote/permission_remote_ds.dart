@@ -11,7 +11,7 @@ class PermissionRemoteDs {
         canDiscount maxDiscountPercent
         canEditProductInfo canAddProduct canDeleteProduct
         canBulkUploadProducts
-        isActive grantedAt
+        grantedAt
       }
     }
   ''';

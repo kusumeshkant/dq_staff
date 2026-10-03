@@ -6,8 +6,7 @@ import '../../domain/repo/auth_repository.dart';
 import '../../service_core/auth/session_manager.dart';
 import '../../service_core/networks/graphql_client_provider.dart';
 import '../../service_core/notifications/notification_service.dart';
-import '../home/home_binding.dart';
-import '../home/home_page.dart';
+import '../../routes/app_routes.dart';
 
 class InviteCodeController extends GetxController {
   final AuthRepository authRepo;
@@ -68,7 +67,7 @@ class InviteCodeController extends GetxController {
       final fcmToken = await Get.find<NotificationService>().getToken();
       if (fcmToken != null) await authRepo.updateFcmToken(fcmToken);
 
-      Get.offAll(() => const HomePage(), binding: HomeBinding());
+      Get.offAllNamed(AppRoutes.home);
     } catch (e) {
       errorMessage.value = e.toString().replaceFirst('Exception: ', '');
     } finally {

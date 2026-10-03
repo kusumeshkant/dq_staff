@@ -4,8 +4,7 @@ import 'package:dq_staff/widgets/themed_background.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../theme/app_theme.dart';
-import '../register/register_binding.dart';
-import '../register/register_page.dart';
+import '../../../routes/app_routes.dart';
 import 'login_controller.dart';
 
 class LoginPage extends StatelessWidget {
@@ -75,6 +74,7 @@ class LoginPage extends StatelessWidget {
                                 TextField(
                                   controller: c.emailController,
                                   keyboardType: TextInputType.emailAddress,
+                                  onChanged: (_) {},
                                   style: const TextStyle(
                                       color: AppTheme.textPrimary),
                                   decoration: const InputDecoration(
@@ -87,6 +87,7 @@ class LoginPage extends StatelessWidget {
                                 Obx(() => TextField(
                                       controller: c.passwordController,
                                       obscureText: c.obscurePassword.value,
+                                      onChanged: (_) {},
                                       style: const TextStyle(
                                           color: AppTheme.textPrimary),
                                       decoration: InputDecoration(
@@ -181,10 +182,7 @@ class LoginPage extends StatelessWidget {
                               Text("Don't have an account? ",
                                   style: AppTypography.label),
                               GestureDetector(
-                                onTap: () => Get.to(
-                                  () => const RegisterPage(),
-                                  binding: RegisterBinding(),
-                                ),
+                                onTap: () => Get.toNamed(AppRoutes.register),
                                 child: Text(
                                   'Register',
                                   style: AppTypography.label.copyWith(

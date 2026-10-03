@@ -6,12 +6,8 @@ import 'package:dq_staff/src/data/datasources/remote/auth_remote_ds.dart';
 import 'package:dq_staff/src/data/repo_impl/auth_repository_impl.dart';
 import 'package:dq_staff/src/domain/entity/user_entity.dart';
 import 'package:dq_staff/src/domain/usecase/get_profile_usecase.dart';
-import 'package:dq_staff/src/presentation/auth/login/login_binding.dart';
-import 'package:dq_staff/src/presentation/auth/login/login_page.dart';
-import 'package:dq_staff/src/presentation/home/home_binding.dart';
-import 'package:dq_staff/src/presentation/home/home_page.dart';
-import 'package:dq_staff/src/presentation/invite/invite_code_binding.dart';
-import 'package:dq_staff/src/presentation/invite/invite_code_page.dart';
+import 'package:dq_staff/src/routes/app_pages.dart';
+import 'package:dq_staff/src/routes/app_routes.dart';
 import 'package:dq_staff/src/service_core/auth/session_manager.dart';
 import 'package:dq_staff/src/service_core/networks/graphql_client_provider.dart';
 import 'package:dq_staff/src/service_core/notifications/notification_service.dart';
@@ -21,8 +17,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:get/get.dart';
+
+// Conditional import: flutter_web_plugins only exists on web.
+// The native stub is a no-op so the call below is safe on all platforms.
+import 'core/url_strategy/url_strategy_web.dart'
+    if (dart.library.io) 'core/url_strategy/url_strategy_native.dart';
 import 'firebase_options.dart';
 
 void main() {
@@ -112,30 +112,27 @@ Future<void> _bootstrap() async {
   // ── Step 4: Initial page routing ────────────────────────────────────────────
   debugPrint('[DQ-Staff] startup: resolving start page...');
   final startConfig = await _resolveStartPage(sessionManager);
-  debugPrint('[DQ-Staff] startup: start page = ${startConfig.page.runtimeType}');
+  debugPrint('[DQ-Staff] startup: start page = $startConfig');
 
   // ── Step 5: Launch ──────────────────────────────────────────────────────────
   debugPrint('[DQ-Staff] startup: runApp...');
-  runApp(DQStaffApp(
-    home: startConfig.page,
-    binding: startConfig.binding,
-  ));
+  runApp(DQStaffApp(initialRoute: startConfig));
   debugPrint('[DQ-Staff] startup: runApp done');
 }
 
-/// Cold-start routing.
+/// Cold-start routing. Returns the named route to start on.
 ///
 /// Priority:
 ///   1. Live backend profile (if reachable)  → cache it and route
 ///   2. Cached profile (if network fails)    → route from cache
 ///   3. No cache + no network                → login (Firebase session kept)
-Future<_StartConfig> _resolveStartPage(SessionManager session) async {
+Future<String> _resolveStartPage(SessionManager session) async {
   final firebaseUser = FirebaseAuth.instance.currentUser;
   debugPrint('[DQ-Staff] _resolveStartPage: firebaseUser=${firebaseUser?.uid ?? "null"}');
 
   if (firebaseUser == null) {
     await session.clearCache();
-    return _StartConfig(page: const LoginPage(), binding: LoginBinding());
+    return AppRoutes.login;
   }
 
   try {
@@ -147,47 +144,31 @@ Future<_StartConfig> _resolveStartPage(SessionManager session) async {
     ).execute();
     debugPrint('[DQ-Staff] _resolveStartPage: profile fetched id=${user.id} role=${user.role}');
 
-    // Cache on every successful fetch so offline cold starts work.
     await session.cacheProfile(user);
     return _routeFrom(session, user);
   } catch (e) {
     debugPrint('[DQ-Staff] _resolveStartPage: backend error, trying cache: $e');
-    // Network / auth error — fall back to cached profile so staff are not
-    // kicked to login just because the backend was momentarily unreachable.
     final cached = await session.loadCachedProfile();
     if (cached != null) {
       debugPrint('[DQ-Staff] _resolveStartPage: routing from cache');
       return _routeFrom(session, cached);
     }
-    // No cache — ask the user to sign in when online.
-    // Do NOT call FirebaseAuth.signOut(): the Firebase session is valid.
     debugPrint('[DQ-Staff] _resolveStartPage: no cache, routing to login');
-    return _StartConfig(page: const LoginPage(), binding: LoginBinding());
+    return AppRoutes.login;
   }
 }
 
-/// Routes based on role and store assignment.
-_StartConfig _routeFrom(SessionManager session, UserEntity user) {
+/// Routes based on role and store assignment. Returns the named route.
+String _routeFrom(SessionManager session, UserEntity user) {
   session.setUser(user);
   debugPrint('[DQ-Staff] _routeFrom: isStaff=${user.isStaff} isAdmin=${user.isAdmin} storeId=${user.storeId}');
 
-  if (!user.isStaff && !user.isAdmin) {
-    // Valid Firebase account but not a staff member — go to login.
-    return _StartConfig(page: const LoginPage(), binding: LoginBinding());
-  }
+  if (!user.isStaff && !user.isAdmin) return AppRoutes.login;
 
-  if (user.storeId == null || user.storeId!.isEmpty) {
-    // Staff account exists but no store assigned yet.
-    return _StartConfig(
-      page: const InviteCodePage(),
-      binding: InviteCodeBinding(),
-    );
-  }
+  if (user.storeId == null || user.storeId!.isEmpty) return AppRoutes.invite;
 
-  // Fetch store details best-effort (non-blocking — staff card shows cached)
   _fetchStoreAsync(session, user.storeId!);
-
-  return _StartConfig(page: const HomePage(), binding: HomeBinding());
+  return AppRoutes.home;
 }
 
 /// Fire-and-forget store fetch so it does not block the cold-start route.
@@ -197,17 +178,10 @@ void _fetchStoreAsync(SessionManager session, String storeId) {
   }).catchError((_) {});
 }
 
-class _StartConfig {
-  final Widget page;
-  final Bindings binding;
-  _StartConfig({required this.page, required this.binding});
-}
-
 class DQStaffApp extends StatelessWidget {
-  final Widget home;
-  final Bindings binding;
+  final String initialRoute;
 
-  const DQStaffApp({super.key, required this.home, required this.binding});
+  const DQStaffApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -217,9 +191,9 @@ class DQStaffApp extends StatelessWidget {
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
-      initialBinding: binding,
+      initialRoute: initialRoute,
+      getPages: AppPages.pages,
       navigatorObservers: [AnalyticsNavigatorObserver()],
-      home: home,
     );
   }
 }

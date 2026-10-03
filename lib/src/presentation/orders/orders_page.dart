@@ -10,12 +10,9 @@ import '../../service_core/networks/graphql_client_provider.dart';
 import '../../service_core/permission/permission_service.dart';
 import '../../theme/app_theme.dart';
 import '../access/access_controller.dart';
-import '../completed_orders/completed_orders_page.dart';
-import '../failed_orders/failed_orders_page.dart';
+import '../../routes/app_routes.dart';
 import '../home/home_controller.dart';
 import '../products/products_controller.dart';
-import '../scanner/scanner_page.dart';
-import '../scanner/scanner_binding.dart';
 import 'orders_controller.dart';
 
 class OrdersPage extends StatelessWidget {
@@ -56,10 +53,7 @@ class OrdersPage extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
           heroTag: null,
           backgroundColor: AppTheme.primary,
-          onPressed: () => Get.to(
-            () => const ScannerPage(),
-            binding: ScannerBinding(),
-          )?.then((_) => c.loadOrders()),
+          onPressed: () => Get.toNamed(AppRoutes.scanner)?.then((_) => c.loadOrders()),
           child: const Icon(Icons.qr_code_scanner_rounded, color: Colors.white),
         ),
         body: Center(
@@ -87,7 +81,7 @@ class OrdersPage extends StatelessWidget {
                         value: c.failedCount,
                         color: AppColors.error,
                         icon: Icons.cancel_rounded,
-                        onTap: () => Get.to(() => const FailedOrdersPage()),
+                        onTap: () => Get.toNamed(AppRoutes.failedOrders),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       _StatChip(
@@ -104,7 +98,7 @@ class OrdersPage extends StatelessWidget {
                         value: c.completedCount,
                         color: AppColors.info,
                         icon: Icons.done_all_rounded,
-                        onTap: () => Get.to(() => const CompletedOrdersPage()),
+                        onTap: () => Get.toNamed(AppRoutes.completedOrders),
                       ),
                     ],
                   ),
