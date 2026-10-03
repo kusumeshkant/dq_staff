@@ -8,8 +8,8 @@ import '../access/access_page.dart';
 import '../my_orders/my_orders_page.dart';
 import '../orders/orders_page.dart';
 import '../products/products_page.dart';
-import '../exit_validation/exit_validation_page.dart';
-import '../exit_validation/exit_validation_binding.dart';
+import '../exit/exit_page.dart';
+import '../exit/exit_binding.dart';
 import 'home_controller.dart';
 
 class HomePage extends StatelessWidget {
@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Get.find<HomeController>();
-    ExitValidationBinding().dependencies();
+    ExitBinding().dependencies();
 
     return ThemedBackground(
       child: LayoutBuilder(
@@ -68,7 +68,7 @@ class HomePage extends StatelessWidget {
                         const NavigationRailDestination(
                           icon: Icon(Icons.exit_to_app_outlined),
                           selectedIcon: Icon(Icons.exit_to_app_rounded),
-                          label: Text('Validate'),
+                          label: Text('Exit'),
                         ),
                         NavigationRailDestination(
                           icon: _AccessIcon(selected: false),
@@ -92,7 +92,7 @@ class HomePage extends StatelessWidget {
                         OrdersPage(),
                         ProductsPage(),
                         MyOrdersPage(),
-                        ExitValidationPage(),
+                        ExitPage(),
                         AccessPage(),
                       ],
                     ),
@@ -133,7 +133,7 @@ class HomePage extends StatelessWidget {
                         const BottomNavigationBarItem(
                           icon: Icon(Icons.exit_to_app_outlined),
                           activeIcon: Icon(Icons.exit_to_app_rounded),
-                          label: 'Validate Exit',
+                          label: 'Exit',
                         ),
                         BottomNavigationBarItem(
                           icon: _AccessIcon(selected: false),

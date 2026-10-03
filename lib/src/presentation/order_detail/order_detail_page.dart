@@ -450,7 +450,29 @@ class OrderDetailPage extends StatelessWidget {
         bottomNavigationBar: Obx(() {
           final o = c.order.value;
           final label = o.nextStatusLabel;
-          if (label == null) return const SizedBox.shrink();
+          if (label == null) {
+            if (!o.awaitsExit) return const SizedBox.shrink();
+            return Container(
+              key: const Key('order-awaits-exit'),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+              decoration: const BoxDecoration(
+                color: Color(0xFF0D1B2A),
+                border: Border(top: BorderSide(color: Colors.white12)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.exit_to_app_rounded, color: Colors.white70, size: 18),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Ready. The order completes when the customer exits — scan their exit QR in the Exit tab.',
+                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
           final isReady = o.status == 'preparing';
           final canProceed = !isReady || c.allItemsChecked;

@@ -107,18 +107,21 @@ class OrderEntity {
 
   bool get isFlagged => flaggedIssue != null;
 
-  /// Next valid status for this order
+  /// Next valid status for this order. There is no "complete" step here:
+  /// an order completes only at the exit (Exit tab → completeExit), which the
+  /// server enforces — updateOrderStatus refuses 'completed'.
   String? get nextStatus => switch (status.toLowerCase()) {
         'pending'   => 'preparing',
         'preparing' => 'ready',
-        'ready'     => 'completed',
         _           => null,
       };
 
   String? get nextStatusLabel => switch (status.toLowerCase()) {
         'pending'   => 'Start Preparing',
         'preparing' => 'Mark Ready',
-        'ready'     => 'Complete Order',
         _           => null,
       };
+
+  /// Paid and still in the store: the customer finishes at the exit.
+  bool get awaitsExit => status.toLowerCase() == 'ready';
 }

@@ -13,7 +13,14 @@ class AppConfig {
   // UAT backend provider — set via --dart-define=BACKEND_PROVIDER=vercel|render|azure
   static const _backendProvider = String.fromEnvironment('BACKEND_PROVIDER', defaultValue: 'azure');
 
-  static const String graphqlEndpoint = _flavor == 'dev'
+  // Local testing only: --dart-define=GRAPHQL_ENDPOINT=http://localhost:4100/graphql
+  // points a dev/uat build at a local backend. Ignored for prod builds.
+  static const _endpointOverride = String.fromEnvironment('GRAPHQL_ENDPOINT');
+
+  static const String graphqlEndpoint =
+      (_endpointOverride != '' && _flavor != 'prod') ? _endpointOverride : _defaultGraphqlEndpoint;
+
+  static const String _defaultGraphqlEndpoint = _flavor == 'dev'
       ? 'https://de-backend-iota.vercel.app/graphql'
       : _flavor == 'uat'
           ? (_backendProvider == 'vercel'

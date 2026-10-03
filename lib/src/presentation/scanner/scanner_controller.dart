@@ -15,6 +15,21 @@ class ScannerController extends GetxController {
   Future<void> onBarcodeDetected(String code) async {
     if (isProcessing.value || _scanned.contains(code)) return;
     _scanned.add(code);
+
+    // A customer's exit QR is not an order id: it belongs to the Exit tab,
+    // where the bag is checked and the exit recorded.
+    if (code.trim().startsWith('DQX1:')) {
+      Get.snackbar(
+        'Exit QR',
+        'This is a customer exit QR. Use the Exit tab to check the bag and let them out.',
+        backgroundColor: AppColors.info,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      await Future.delayed(const Duration(seconds: 2));
+      _scanned.remove(code);
+      return;
+    }
     isProcessing.value = true;
 
     try {
